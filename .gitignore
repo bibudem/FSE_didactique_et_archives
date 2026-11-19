@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+
+# médias d'essai locaux, hors du dépôt
+medias/ouverture.mp4
+medias/scenario-1.mp4
+medias/scenario-1.jpg
+medias/scenario-2.glb
+medias/scenario-2.jpg
+medias/scenario-3.jpg
+medias/estampe-*.jpg
+medias/scenario-3.mp4
+medias/*.source.json
+medias/photo-course-*.jpg

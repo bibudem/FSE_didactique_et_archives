@@ -1,0 +1,866 @@
+/* Mur de visualisation — maquette fonctionnelle
+   Page de 11 520 × 2 160 px : 9 colonnes de 1 280 px × 3 rangées de 720 px (un écran par cellule).
+   Thème sombre, inspiré de l'interface de YouTube :
+   fond presque noir, surfaces grises, pastilles arrondies, blanc-gris pour la progression (pas de rouge).
+   La zone « Visualisation et description de l'objet » a un fond gris.
+   Typographie épurée : une seule taille et un seul style pour tout le texte,
+   sauf les titres et les sous-titres (--taille-titre, --taille-sous-titre, --taille-texte, sur #scene). */
+
+:root {
+  --fond: #0f0f0f;        /* zones « Parcours thématique » et « Vidéo/Tableau blanc » */
+  --gris: #272727;        /* zone « Visualisation et description de l'objet », surfaces */
+  /* boîtes grises (carré du titre, boîte de gauche, zone de la notice) : fondu du gris au fond de la page, vers le bas; le
+     gris tient le premier tiers, puis s'assombrit (soir du 12 novembre 2026; un moment, fondu sur toute la hauteur) */
+  --fondu: linear-gradient(to bottom, var(--gris) 0%, var(--gris) 35%, var(--fond) 100%);
+  --gris-2: #3f3f3f;      /* surfaces sur fond gris, survol */
+  --texte: #f1f1f1;
+  --discret: #aaaaaa;
+  --eteint: #717171;
+  --lien: #3ea6ff;
+  --rayon-puce: 16px;     /* coins des mots-clés et des boutons à texte (8 px en 16:9) */
+  --clair: #d9d9d9;
+  --fond-bouton: rgba(70, 70, 70, 0.82);         /* fond de tous les boutons : gris un peu transparent, le même sur le fond sombre, la zone grise et les images */
+  --fond-bouton-survol: rgba(96, 96, 96, 0.9);       /* blanc-gris : progression de la vidéo, repères atteints, apparition des objets */
+  --t: 44px;              /* taille de base du texte (?texte=44, de 24 à 72) */
+  --marge: 48px;
+  --rayon: 24px;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; background: var(--fond); }   /* autour de la page (fenêtre plus large ou plus haute) : le fond de la page, pas un noir plus noir (soir du 12 novembre 2026) */
+body { overflow: hidden; font-family: "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, sans-serif; color: var(--texte); }
+body.defilement { overflow: auto; }
+
+#cadre { position: relative; width: 100%; height: 100%; }
+body.defilement #cadre { height: auto; }
+
+#scene {
+  position: absolute; left: 0; top: 0;
+  width: 11520px; height: 2160px;
+  transform-origin: 0 0;
+  display: grid;
+  grid-template-columns: repeat(9, 1280px);
+  grid-template-rows: repeat(3, 720px);
+  font-size: var(--taille-texte); line-height: 1.25;
+  --taille-titre: calc(var(--t) * 1.5);
+  --taille-sous-titre: calc(var(--t) * 1.1);
+  --taille-texte: calc(var(--t) * 0.85);
+  --bouton: calc(var(--t) * 2.6);   /* taille unique des boutons : icônes, flèches, pastilles, points des images et du modèle 3D, hauteur des boutons à texte (sauf les cartes de l'accueil); au mur, 114 px */
+  background: var(--fond); color: var(--texte);
+  overflow: hidden;
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+
+h2 { margin: 0 0 0.5em; font-size: var(--taille-sous-titre); color: var(--texte); font-weight: 600; }   /* sous-titres de section */
+p { margin: 0; }
+.etiquette-zone { font-size: var(--taille-texte); color: var(--discret); }
+
+/* Boutons en pastille : secondaires gris, principaux blancs. Cibles de toucher d'au moins 24 × 24 px CSS (WCAG 2.2, critère 2.5.8) */
+.bouton {
+  font: inherit; font-size: var(--taille-texte); font-weight: 400; line-height: 1.15;
+  min-height: var(--bouton); padding: 0.35em 1em;
+  color: var(--texte); background: var(--fond-bouton);   /* boutons à texte : même forme que les mots-clés, gris et translucides */
+  border: 0; border-radius: var(--rayon-puce);
+  cursor: pointer; touch-action: manipulation; white-space: nowrap;
+}
+.bouton:hover { background: var(--fond-bouton-survol); }
+.bouton:active { transform: translateY(2px); }
+.bouton:disabled { color: var(--eteint); background: rgba(255, 255, 255, 0.05); cursor: default; transform: none; }
+.bouton:focus-visible, .icone:focus-visible, .carte-image:focus-visible, .zone:focus-visible, .associe:focus-visible, .pastille:focus-visible, .vignette-video:focus-visible { outline: 8px solid var(--lien); outline-offset: 4px; }
+.lien-discret { font: inherit; font-size: var(--taille-texte); color: var(--discret); background: none; border: 0; text-decoration: underline; padding: 0.4em 0; cursor: pointer; }
+
+/* ---------- Zone « Parcours thématique » ---------- */
+#parcours { grid-area: 1 / 1 / 3 / 7; position: relative; background: var(--fond); }
+#accueil { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 2560px); grid-template-rows: minmax(0, 1fr); }
+#scenario { position: absolute; inset: 0; }
+#scene[data-base="A"] #scenario, #scene[data-base="B"] #accueil { display: none; }
+
+/* Cartes de scénario, comme les vignettes de vidéos : image (format 4:5, même taille pour les trois cartes),
+   bouton de lecture, durée, puis titre et citation courte sous l'image. */
+/* au mur, chaque carte est centrée dans un écran (écrans 1, 3 et 5 de la rangée), jamais à cheval sur la jonction de deux écrans */
+.carte { margin: 0 0 0 240px; width: 800px; padding-bottom: 60px; display: flex; flex-direction: column; gap: 40px; min-width: 0; min-height: 0; }
+/* l'image part du haut de l'écran et prend toute la hauteur laissée par le texte (même hauteur de texte pour les trois cartes) */
+.vignette-video {
+  position: relative; flex: 1 1 auto; width: 100%; min-height: 0; padding: 0; overflow: hidden;
+  font: inherit; color: var(--discret); background: var(--gris);
+  border: 0; border-radius: 0 0 40px 40px; cursor: pointer; touch-action: manipulation;
+}
+.vignette-video.a-decrire { cursor: default; }
+.vignette-video .image { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: var(--taille-texte); }
+.vignette-video img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vignette-video:not(.a-decrire) .image.sans-image { padding-top: calc(var(--t) * 6); }   /* « Image à venir » sous la pastille de lecture */
+.vignette-video .lecture {
+  position: absolute; left: 50%; top: 50%; width: calc(var(--t) * 3.4); height: calc(var(--t) * 3.4); transform: translate(-50%, -50%);
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.6); border-radius: 50%; transition: background 0.2s, transform 0.2s;
+}
+.vignette-video .lecture svg { width: 55%; height: 55%; fill: #fff; }   /* triangle centré : le tracé porte déjà son décalage optique */
+.vignette-video:hover .lecture, .vignette-video:active .lecture { background: rgba(0, 0, 0, 0.8); transform: translate(-50%, -50%) scale(1.06); }
+.carte .infos { flex: none; height: calc(var(--t) * 5.4); min-width: 0; display: flex; flex-direction: column; gap: 0.3em; overflow: hidden; }
+.carte h2 { margin: 0; font-size: var(--taille-sous-titre); line-height: 1.2; color: var(--texte); font-weight: 600; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.carte .meta, .carte .numero { font-size: var(--taille-texte); color: var(--discret); }
+/* citation très courte sous l'image (auteur, année, licence); la référence complète s'affiche au parcours, sous la vidéo ou l'entrée */
+.carte .credit { font-size: var(--taille-texte); color: var(--discret); overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.carte .description { font-size: var(--taille-texte); color: var(--discret); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+
+/* Question du scénario (« question », scenario-N.json; 12 novembre 2026) : depuis le soir du 12 novembre 2026, dans le carré
+   du titre (zone de droite), sous la boîte blanche, alignée à gauche comme le titre, 2 points de moins (1,83 × --t au lieu
+   de 2), interligne 1,4; un saut de ligne (\n) sépare deux phrases. Auparavant, en haut à gauche de la zone « Parcours
+   thématique », dans une colonne à gauche de la pile. */
+#question-scenario { margin: 0; font-size: calc(var(--t) * 1.83); line-height: 1.4; font-weight: 500; color: var(--texte); white-space: pre-line; text-wrap: pretty; }
+#question-scenario:empty, #scene[data-base="A"] #question-scenario { display: none; }
+
+/* Pile de cartes du parcours (js/pile.js) : image la plus grande possible, 1 à 3 éléments à toucher; jusqu'à cinq cartes
+   précédentes s'étalent en désordre autour de la carte du dessus (places et angles posés par js/pile.js); flèches de part
+   et d'autre de la carte du dessus (placées par js/pile.js) */
+#scenario { --decalage: 48px; --point: var(--bouton); }   /* lus par js/pile.js : décalage des cartes, points des éléments */
+#pile { position: absolute; z-index: 2; left: var(--marge); right: var(--marge); top: calc(var(--t) * 3.4); bottom: var(--marge); pointer-events: none; }   /* au-dessus du modèle 3D agrandi (scénario 2) */
+#pile .carte-pile { pointer-events: auto; }
+#pile, .fleche { transition: opacity 0.6s, visibility 0.6s; }
+#scene.video-grande #pile, #scene.video-grande .fleche { opacity: 0; visibility: hidden; }   /* première carte : seulement après la vidéo agrandie */
+/* au mur : cartes plus grandes (environ 30 % de plus) : la zone des cartes part du haut de la rangée 1 et descend de 150 px dans la rangée 3, au-dessus des intitulés et des embranchements de la ligne du temps */
+#scene:not(.e169) #pile, #scene:not(.e169) #pile-vide { top: var(--marge); bottom: calc(var(--marge) - 150px); }
+#scene:not(.e169) #ligne-temps { top: 0; align-self: stretch; height: auto; margin: 24px 0; }   /* au mur : la constellation occupe la rangée du bas; elle contourne les cartes de la pile qui y descendent (js/pile.js) */
+/* scénarios 1 et 3 : pendant la vidéo agrandie, aucune pastille; la première apparaît avec la première carte */
+#pastilles { transition: opacity 0.6s, visibility 0.6s; }
+#scene.video-grande #pastilles { opacity: 0; visibility: hidden; }
+#pile-vide { position: absolute; left: var(--marge); right: var(--marge); top: calc(var(--t) * 3.4); bottom: var(--marge); margin: 0; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--discret); font-size: var(--taille-texte); }
+.carte-pile {
+  position: absolute; left: 50%; top: 50%; margin: 0; transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--gris); border-radius: 24px; box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  transition: transform 0.5s, filter 0.5s;
+}
+.carte-pile[data-rang="1"] { filter: brightness(0.6); }   /* cartes précédentes : de plus en plus sombres; leur place est posée par js/pile.js */
+.carte-pile[data-rang="2"] { filter: brightness(0.52); }
+.carte-pile[data-rang="3"] { filter: brightness(0.45); }
+.carte-pile[data-rang="4"] { filter: brightness(0.4); }
+.carte-pile[data-rang="5"] { filter: brightness(0.35); }
+.carte-pile:not([data-rang="0"]) { cursor: pointer; }   /* toucher une carte précédente la ramène sur le dessus */
+.carte-pile.arrive { animation: carte-arrive 0.5s ease-out; }
+@keyframes carte-arrive { from { opacity: 0; transform: translate(calc(-50% + var(--decalage) * 3), calc(-50% + var(--decalage) * 2)) rotate(4deg); } }
+.carte-image { position: relative; background: #000; }
+.carte-image img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.carte-attente { position: absolute; inset: 0; margin: 0; display: flex; align-items: center; justify-content: center; color: var(--discret); font-size: var(--taille-texte); }
+.carte-legende { display: flex; align-items: center; justify-content: space-between; gap: 1em; padding: 0.45em 0.6em 0.45em 0.8em; font-size: var(--taille-texte); color: var(--texte); }
+.carte-titre { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.carte-agrandir { flex: none; }
+.carte-actions { flex: none; display: flex; align-items: center; gap: 0.3em; }
+/* élément à toucher : point de la taille des boutons, comme les points du modèle 3D; points et étiquettes s'affichent au toucher
+   de l'image (7 secondes); avant ce toucher, rien n'est affiché sur l'image */
+.zone {
+  position: absolute; z-index: 2; width: var(--point); height: var(--point); padding: 0; border: 0; background: none;
+  font: inherit; font-size: var(--taille-texte); color: #fff; cursor: pointer; touch-action: manipulation; transform: translate(-50%, -50%);
+  visibility: hidden; opacity: 0; transition: opacity 0.25s, visibility 0.25s;   /* rien sur l'image avant qu'on la touche */
+}
+.carte-image.etiquettes .zone { visibility: visible; opacity: 1; }
+.zone-point {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: var(--fond-bouton); border: 5px solid rgba(255, 255, 255, 0.85); box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.35);   /* comme .point-entree */
+}
+/* étiquette hors du point : cachée, elle ne capte pas le toucher (le toucher passe à l'image, qui affiche les étiquettes) */
+.zone-etiquette {
+  position: absolute; left: calc(100% + 0.35em); top: 50%; transform: translateY(-50%);
+  padding: 0.12em 0.55em; white-space: nowrap; background: rgba(0, 0, 0, 0.72); border-radius: var(--rayon-puce);
+}
+.zone.a-gauche .zone-etiquette { left: auto; right: calc(100% + 0.35em); }
+.carte-image { cursor: pointer; }
+
+/* ---------- Zone « Visualisation et description de l'objet » : fond gris ---------- */
+#visualisation { grid-area: 1 / 7 / 3 / 10; position: relative; background: var(--gris); display: grid; grid-template-columns: 1280px 2560px; grid-template-rows: 720px 720px; }
+/* grand titre : le thème à l'accueil, puis le titre du scénario (question du thème et sous-question retirées le 12 novembre 2026) */
+#question { grid-area: 1 / 1 / 3 / 3; padding: 160px 200px; display: flex; flex-direction: column; justify-content: center; gap: calc(var(--t) * 1.6); }
+#theme { font-size: calc(var(--t) * 2.12); line-height: 1.15; font-weight: 600; color: var(--texte); }   /* 1 point de moins (2,2 → 2,12) */
+#scene[data-objet="non"] .bloc-objet { display: none; }
+#scene[data-objet="oui"] #question { display: none; }
+/* Scénario choisi, sans objet ouvert (12 novembre 2026) : le titre du scénario dans un carré gris, au centre de la zone;
+   le reste de la zone sur le fond de la page. La notice garde le fond gris de toute la zone. Soir du 12 novembre 2026 :
+   carré plus grand (au mur, 1 440 × 1 440 px, toute la hauteur de la zone, centré sur la colonne 8; auparavant,
+   1 280 × 1 280 px), texte aligné à gauche (auparavant, centré), 2,4 × --t (auparavant, 2,12); en 16:9, le carré a
+   déjà toute la largeur de la zone (640 × 640 px). Le texte reste dans la colonne 8 (marges de 120 px). Un « : » ne
+   commence jamais une ligne (espace insécable, js/etat.js). Même carré dans les trois scénarios. */
+#scene[data-base="B"][data-objet="non"] #visualisation { background: var(--fond); }
+/* Boîtes grises (carré du titre, boîte de gauche, zone de la notice) : fondu du gris au noir (le fond de la page) vers le
+   bas, dans tous les scénarios (soir du 12 novembre 2026, à la demande de l'équipe); moins rapide le même soir : le gris
+   tient le premier tiers (--fondu, :root) */
+#scene[data-base="B"][data-objet="oui"] #visualisation { background: var(--fondu); }
+#scene[data-base="B"] #question { align-self: center; justify-self: center; box-sizing: border-box; width: 1440px; height: 1440px; padding: 120px;
+  background: var(--fondu); align-items: flex-start; text-align: left; }
+#scene[data-base="B"] #theme { font-size: calc(var(--t) * 2.4); text-wrap: pretty; }
+/* Notice ouverte (soir du 12 novembre 2026, à la demande de l'équipe) : le titre et la question du scénario reviennent à gauche,
+   dans la même boîte, inversée : la boîte grise contre le bord gauche, la boîte blanche du titre qui dépasse vers la droite.
+   Au mur, la rangée 1 des colonnes 1 et 2 (2 360 × 720 px; la boîte blanche va jusqu'à la colonne 3); en 16:9, la colonne de
+   gauche (548 × 548 px; au scénario 2, 548 × 336 px, au-dessus de la carte). Les textes diminuent s'il le faut (js/etat.js). */
+#carre-gauche { display: none; position: absolute; z-index: 1; left: 0; top: 0; box-sizing: border-box; width: 2360px; height: 720px; padding: 60px 120px;
+  background: var(--fondu); grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto minmax(min-content, 1fr); }
+/* La boîte passe à gauche dès que l'entrée a pris sa taille (data-gauche, js/etat.js) : vidéo réduite après ses 20 secondes
+   en grand (scénarios 1 et 3), carte de Jaillot arrivée à sa place (scénario 2); ou dès qu'une notice s'ouvre */
+#scene[data-base="B"]:is([data-objet="oui"], [data-gauche="oui"]) #carre-gauche { display: grid; }
+#carre-gauche .titre { grid-row: 2; position: relative; margin: 0 -320px 0 -120px; padding: 0.45em 320px 0.45em 120px; background: #fff; color: #111;
+  font-size: calc(var(--t) * 2.4); line-height: 1.15; font-weight: 600; text-wrap: pretty; }
+#carre-gauche .question { grid-row: 3; align-self: start; margin: 0; padding-top: calc(var(--t) * 1.2); font-size: calc(var(--t) * 1.83); line-height: 1.4;
+  font-weight: 500; color: var(--texte); white-space: pre-line; text-wrap: pretty; }   /* moins gras (500; auparavant, 600) */
+#carre-gauche .question:empty { display: none; }
+.e169 #carre-gauche { top: 12px; width: 548px; height: 548px; padding: 40px; }
+.e169 #carre-gauche .titre { margin: 0 -96px 0 -40px; padding: 0.45em 96px 0.45em 40px; }
+#scene.e169[data-entree="carte"] #carre-gauche { height: 336px; padding: 24px 40px; }
+#scene.e169[data-entree="carte"] #carre-gauche .question { padding-top: 12px; }
+/* carré : la boîte du titre au centre; la question dessous (si elle est longue, la boîte monte d'autant) */
+#scene[data-base="B"] #question { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto minmax(min-content, 1fr); gap: 0; }
+#scene[data-base="B"] #theme { grid-row: 2; }
+#scene[data-base="B"] #question-scenario { grid-row: 3; align-self: start; padding-top: calc(var(--t) * 1.2); }
+#scene[data-base="B"] #question-scenario { display: none; }   /* la question ne s'affiche qu'à gauche (#carre-gauche), soir du 12 novembre 2026 */
+#scene[data-base="B"]:is([data-objet="oui"], [data-gauche="oui"]) #question { display: none; }   /* la boîte est passée à gauche : le carré cède la place */
+/* Titre du scénario dans une boîte blanche, en noir, par-dessus le carré gris (soir du 12 novembre 2026, à la demande de
+   l'équipe) : centrée dans le carré, elle le dépasse de part et d'autre (au mur, de 200 px; en 16:9, de 56 px à gauche, le
+   carré touchant le bord droit de l'écran); le texte garde sa place. En 16:9, la pile passe par-dessus (flèche de droite). */
+#scene[data-base="B"] #theme { position: relative; z-index: 1; align-self: stretch; margin: 0 -320px; padding: 0.45em 320px; background: #fff; color: #111; }
+#scene.e169[data-base="B"] #theme { margin: 0 -96px; padding: 0.45em 96px; }
+/* Accueil : plus de thème dans la zone de droite (soir du 12 novembre 2026, à la demande de l'équipe; un moment centré, auparavant
+   aligné à gauche) : la zone est masquée et les cartes de scénario prennent toute la largeur (voir « Accueil (état A) ») */
+#scene[data-base="A"] #visualisation { display: none; }
+
+#objet-image { grid-area: 1 / 1; position: relative; background: var(--fond); }   /* autour de l'aperçu : le fond de la page (auparavant, noir) */
+#visionneuse { width: 100%; height: 100%; }   /* OpenSeadragon impose position: relative à son élément */
+model-viewer { display: block; width: 100%; height: 100%; background: #000; --poster-color: transparent; }
+#message-image { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: var(--marge); text-align: center; color: var(--discret); font-size: var(--taille-texte); }
+/* image de la notice : aperçu fixe, sans barre de commandes (plein écran : icône des quatre coins, sur la carte) */
+/* Barres d'icônes, inspirées de la visionneuse des Collections spéciales de l'UdeM (zoom avant, zoom arrière,
+   réinitialiser | plein écran, fermer) : icônes au trait, sans fond, sur une barre arrondie et translucide */
+.barre { display: flex; align-items: center; gap: 0.15em; padding: 0 0.3em; background: var(--fond-bouton); border-radius: 999px; }   /* barre sur une image, une vidéo ou un modèle 3D : même hauteur que les boutons */
+.barre[hidden] { display: none; }
+.icone { flex: none; width: var(--bouton); height: var(--bouton); padding: 0; border: 0; border-radius: 50%; background: none; color: #cfcfcf; cursor: pointer; touch-action: manipulation; display: flex; align-items: center; justify-content: center; }
+.icone svg { stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.icone svg { width: 62%; height: 62%; }
+.icone:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
+.icone:active { transform: translateY(2px); }
+.icone:disabled { color: var(--eteint); background: none; cursor: default; transform: none; }
+.separateur { align-self: stretch; width: 2px; margin: 0.3em 0.3em; background: rgba(255, 255, 255, 0.35); }
+/* Bouton à icône seul (hors d'une barre) : cercle gris translucide, comme les boutons à texte et les mots-clés.
+   Flèches de la pile, plein écran d'une carte, « v » de défilement de la notice. */
+.icone.seule { background: var(--fond-bouton); }
+.icone.seule:hover { background: var(--fond-bouton-survol); }
+.icone svg .plein { fill: currentColor; stroke: none; }
+/* flèches de la pile : placées par js/pile.js de part et d'autre de la carte du dessus */
+.fleche { position: absolute; z-index: 4; }
+.fleche[hidden] { display: none; }
+.icone.fleche:disabled { opacity: 0.35; background: var(--fond-bouton); }
+
+#bloc-description { grid-area: 1 / 2; }
+#objet-description { padding: var(--marge) 72px; display: flex; flex-direction: column; gap: 0.45em; }
+#objet-description > * { flex-shrink: 0; }   /* le titre reste entier; une longue notice défile */
+#objet-description .titre { margin: 0; font-size: var(--taille-sous-titre); line-height: 1.2; font-weight: 600; color: var(--texte); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+#objet-description .contexte { font-size: var(--taille-texte); }
+#objet-description dl { margin: 0.2em 0 0; display: grid; grid-template-columns: max-content 1fr; gap: 0.35em 0.8em; font-size: var(--taille-texte); }
+#objet-description dt { color: var(--discret); }
+#objet-description dd { margin: 0; overflow-wrap: anywhere; }   /* valeur entière (source complète); ce qui dépasse défile */
+#objet-description .a-venir { color: var(--eteint); }
+#objet-description .etat-lecture { font-size: var(--taille-texte); color: var(--discret); }
+#objet-description .erreur { color: #ff6b6b; }
+
+#bloc-mots { grid-area: 2 / 1; border-top: 4px solid var(--fond); }
+#objet-mots { padding: var(--marge); }
+#liste-mots { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 14px; }
+#liste-mots li { font-size: var(--taille-texte); padding: 0.25em 0.7em; color: var(--texte); background: var(--gris-2); border-radius: var(--rayon-puce); }
+
+#bloc-associes { grid-area: 2 / 2; border-top: 4px solid var(--fond); border-left: 4px solid var(--fond); }
+#objet-associes { padding: var(--marge) 72px; }
+/* Notice, mots-clés et objets associés : on fait défiler du doigt ce qui dépasse. Aucune ligne ni objet coupé : une bande
+   de la couleur du fond couvre ce qui ne tient pas en entier (js/etat.js); quand il reste de la suite, un chevron apparaît
+   et amène la suite en haut du bloc. */
+.defilant { position: relative; min-width: 0; min-height: 0; overflow: hidden; }
+.defile { height: 100%; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; scrollbar-width: none; }
+.defile::-webkit-scrollbar { display: none; }
+/* depuis le soir du 12 novembre 2026, le fond du bloc est en dégradé : les bandes ne sont plus peintes; un masque efface
+   plutôt le haut et le bas coupés du texte (--haut et --bas, js/etat.js) */
+.cache-bas, .cache-haut { position: absolute; left: 0; right: 0; z-index: 1; background: none; pointer-events: none; }
+.defile { -webkit-mask-image: linear-gradient(to bottom, transparent var(--haut, 0px), #000 var(--haut, 0px), #000 var(--bas, 100%), transparent var(--bas, 100%));
+  mask-image: linear-gradient(to bottom, transparent var(--haut, 0px), #000 var(--haut, 0px), #000 var(--bas, 100%), transparent var(--bas, 100%)); }
+.cache-bas { top: 100%; bottom: 0; }
+.cache-haut { top: 0; height: 0; }
+.defilant .defiler { position: absolute; z-index: 2; left: calc(50% - var(--bouton) / 2); bottom: calc(var(--bouton) * -0.1); display: none; }   /* chevron seul, sans cercle, au ras du bas */
+.defilant.suite .defiler { display: flex; }
+#liste-associes { display: flex; flex-direction: column; gap: 24px; }
+.associe {
+  display: flex; align-items: center; gap: 0.7em; padding: 14px; width: 100%;
+  font: inherit; font-size: var(--taille-texte); text-align: left; color: var(--texte);
+  background: transparent; border: 0; border-radius: 22px; cursor: pointer; touch-action: manipulation;
+}
+.associe:hover { background: var(--gris-2); }
+.associe .vignette { flex: none; width: calc(var(--t) * 5); height: calc(var(--t) * 3.6); border-radius: 16px; background: var(--gris-2); overflow: hidden; }
+.associe .vignette img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.associe .texte { display: flex; flex-direction: column; gap: 0.25em; min-width: 0; }
+.associe .nom { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.associe .commun { color: var(--discret); }
+.aucun { color: var(--discret); font-size: var(--taille-texte); }
+
+/* ---------- Zone « Vidéo/Tableau blanc » ---------- */
+#bas { grid-area: 3 / 1 / 4 / 10; position: relative; background: var(--fond); display: grid; grid-template-columns: repeat(9, 1280px); grid-template-rows: 720px; }
+/* vidéo ou entrée : ancrée en bas à gauche de sa zone; elle peut s'agrandir vers le haut et vers la droite.
+   Ombre diffuse vers la droite et vers le haut, à toutes les tailles. */
+#scene { --ombre-bas: 56px -56px 140px 8px rgba(0, 0, 0, 0.95); }
+#video-bloc { grid-area: 1 / 1 / 2 / 2; position: absolute; left: 0; bottom: 0; width: 100%; height: 100%; background: #000; box-shadow: var(--ombre-bas); transition: width 0.6s ease, height 0.6s ease; }
+/* Scénarios 1 et 3 (entrée par une vidéo) : à l'ouverture, la vidéo s'affiche deux fois plus grande (au mur, 2 × 2 écrans;
+   en 16:9, 1 280 × 720 px) pendant 20 secondes, par-dessus le parcours et la ligne du temps, puis reprend sa taille
+   (js/etat.js); la première carte du parcours n'apparaît qu'ensuite. Un toucher ailleurs dans la page ramène aussitôt
+   la vidéo à sa taille. */
+#scene.video-grande #video-bloc { width: 200%; height: 200%; z-index: 6; }
+/* Vidéo en plein écran, en tout temps (icône en bas à droite de la vidéo) : elle couvre tout le mur et continue de jouer */
+#scene.video-plein #video-bloc { width: 900%; height: 300%; z-index: 12; box-shadow: none; }
+#video-plein-barre { position: absolute; right: 24px; bottom: 36px; z-index: 4; }
+#bas:not([data-entree="video"]) #video-plein-barre, #video-absente:not([hidden]) ~ #video-plein-barre { display: none; }   /* vidéo absente ou illisible */
+#btn-plein-video .reduire, #scene.video-plein #btn-plein-video .agrandir { display: none; }
+#scene.video-plein #btn-plein-video .reduire { display: inline; }
+/* Scénario 2 (entrée par un modèle 3D) : le modèle a plus de place, en permanence (au mur, 2 × 2 écrans : colonnes 1 et 2,
+   rangées 2 et 3; en 16:9, 1 080 × 720 px). La ligne du temps passe à sa droite (le titre est sur l'entrée, en bas à gauche); les images du parcours
+   se placent à côté (au mur) ou au-dessus, plus petites et décalées vers la droite (en 16:9) : elles chevauchent le coin
+   du modèle, en haut à droite. */
+#bas:is([data-entree="modele3d"], [data-entree="carte"]) #video-bloc { width: 200%; height: 200%; }
+#bas:is([data-entree="modele3d"], [data-entree="carte"]) #video-commandes { grid-column: 3 / 10; }
+#scene:is([data-entree="modele3d"], [data-entree="carte"]) #pile, #scene:is([data-entree="modele3d"], [data-entree="carte"]) #pile-vide { left: calc(2560px + var(--marge)); }
+/* Scénario choisi (état B), au mur : la vidéo garde aussi 2 × 2 écrans (colonnes 1 et 2, rangées 2 et 3), comme le modèle 3D;
+   la pile se place à sa droite (colonnes 3 à 6), les commandes et la ligne du temps sur les colonnes 3 à 9 */
+#scene:not(.e169)[data-base="B"]:not(.video-plein) #video-bloc { width: 200%; height: 200%; }
+#scene:not(.e169)[data-base="B"] #video-commandes { grid-column: 3 / 10; }
+#scene:not(.e169):not(.eviter-3-4)[data-base="B"] #pile, #scene:not(.e169):not(.eviter-3-4)[data-base="B"] #pile-vide { left: calc(2560px + var(--marge)); }
+#video-hote, #video-hote video { position: absolute; inset: 0; width: 100%; height: 100%; }
+#video-hote video { object-fit: contain; background: #000; }
+#video-hote .youtube, #video-hote .youtube iframe, #video-hote .youtube .voile { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+#video-hote .youtube { background: #000; }   /* vidéo YouTube (js/video.js) : le voile capte les touchers */
+/* pastille de lecture sur la vidéo : même taille et même gris que les autres boutons */
+.lecture-video {
+  position: absolute; left: 50%; top: 50%; z-index: 2; width: var(--bouton); height: var(--bouton); transform: translate(-50%, -50%);
+  display: flex; align-items: center; justify-content: center; padding: 0; color: #cfcfcf;
+  background: var(--fond-bouton); border: 0; border-radius: 50%; cursor: pointer; touch-action: manipulation; transition: background 0.2s;
+}
+.lecture-video:hover { color: #fff; background: var(--fond-bouton-survol); }
+.lecture-video svg { width: 50%; height: 50%; fill: currentColor; }
+.lecture-video:focus-visible { outline: 8px solid var(--lien); outline-offset: 4px; }
+/* entrée d'un scénario par un modèle 3D ou une image (js/entree.js) */
+#entree-hote { position: absolute; inset: 0; z-index: 1; overflow: hidden; background: #000; }   /* overflow : un point hors du cadre ne déborde pas sur le parcours */
+#entree-hote model-viewer, #entree-hote .entree-image { width: 100%; height: 100%; }
+/* sous l'entrée d'un scénario : recentrer et affichage plein écran, comme sous l'image d'un objet */
+#entree-commandes { position: absolute; left: 50%; bottom: 36px; transform: translateX(-50%); z-index: 3; }
+/* Source en filigrane (js/filigrane.js), en bas à gauche de la vidéo, du modèle 3D ou de l'image : citation courte sur une
+   bande sombre et translucide (contraste d'au moins 4,5:1, même sur une image blanche); au toucher, la référence complète.
+   Largeur : à gauche des boutons centrés de la visionneuse. */
+.filigrane { position: absolute; left: 0; bottom: 0; z-index: 4; max-width: calc(50% - 5em); font-size: var(--taille-texte); line-height: 1.3; }
+.filigrane-court, .filigrane-complet { display: block; max-width: 100%; margin: 0; padding: 0.3em 0.65em; border: 0; border-radius: 0 0.45em 0 0;
+  background: rgba(0, 0, 0, 0.72); color: #d9d9d9; font: inherit; text-align: left; }
+.filigrane-court { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.filigrane-complet { overflow-wrap: anywhere; }
+.filigrane-complet a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
+#bas:not([data-entree="video"]) #video-absente, #bas:not([data-entree="video"]) #video-barre { display: none; }
+.point-entree {
+  width: var(--bouton); height: var(--bouton); padding: 0; border-radius: 50%; cursor: pointer; touch-action: manipulation;
+  font: inherit; font-size: var(--taille-texte); font-weight: 600; color: #fff;
+  background: var(--fond-bouton); border: 5px solid rgba(255, 255, 255, 0.85); box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.35);   /* même gris que les autres boutons; anneau sombre : visible sur le blanc */
+  display: flex; align-items: center; justify-content: center;
+}
+.point-entree.atteinte { color: var(--fond); background: var(--clair); }
+.point-entree:not([data-visible]) { opacity: 0.35; }   /* point caché derrière le modèle (model-viewer) */
+.entree-image .point-entree { opacity: 1; }
+/* Carte comparative (js/carte.js, scénario 2) : carte ancienne géoréférencée sur une carte récente, fixe (ni zoom ni
+   déplacement); rideau; points propres à chaque carte (sépia : carte ancienne; gris : carte récente), avec le nom du lieu;
+   icône de carte en bas à droite : la carte ancienne en plein écran (12 novembre 2026) */
+#entree-hote .carte-comparee { position: absolute; inset: 0; --point-carte: 96px; font-size: var(--taille-texte); }
+#visionneuse-plein .carte-comparee { position: relative; width: 100%; height: 100%; --point-carte: 110px; font-size: var(--taille-texte); }
+.carte-comparee { isolation: isolate; }   /* les plans de Leaflet (z-index jusqu'à 1000) restent sous les boutons du plein écran */
+.carte-comparee .carte-fond { position: absolute; inset: 0; background: #aad3df; }
+.carte-comparee .leaflet-container { font: inherit; background: #aad3df; }
+.carte-comparee .leaflet-control-attribution { font-size: 26px; line-height: 1.4; padding: 2px 10px; background: rgba(255, 255, 255, 0.85); color: #222; }
+.carte-comparee .leaflet-control-attribution a { color: #0b57a4; }
+/* poignée du rideau : un peu au-dessus du milieu, entre les points (scenario-2.json, vue.cadre) */
+.carte-rideau { --poignee-haut: 38%; position: absolute; top: 0; bottom: 0; width: 6px; margin-left: -3px; z-index: 900; background: #fff; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.45); pointer-events: none; }
+.carte-poignee { position: absolute; top: var(--poignee-haut); left: 50%; transform: translate(-50%, -50%); width: var(--bouton); height: var(--bouton); padding: 0;
+  border-radius: 50%; border: 5px solid #fff; background: var(--fond-bouton); color: #fff; box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.35);
+  display: flex; align-items: center; justify-content: center; pointer-events: auto; cursor: ew-resize; touch-action: none; }
+.carte-poignee.active, .carte-poignee:hover { background: var(--fond-bouton-survol); }
+.carte-poignee svg { width: 62%; height: 62%; fill: currentColor; }
+.carte-poignee:focus-visible { outline: 8px solid var(--lien); outline-offset: 4px; }
+.point-carte { display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; touch-action: manipulation;
+  font-size: var(--taille-texte); font-weight: 600; color: #fff; transition: opacity 0.2s;
+  border: 5px solid rgba(255, 255, 255, 0.9); box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.4); background: var(--fond-bouton); }
+.point-carte.ancienne { background: rgba(122, 76, 32, 0.92); border-color: #f3e3c3; }   /* sépia : points de la carte ancienne */
+.point-carte.atteinte { color: var(--fond); background: var(--clair); }
+.point-carte .nom { position: absolute; left: calc(100% + 12px); top: 50%; transform: translateY(-50%); padding: 0.15em 0.55em; border-radius: var(--rayon-puce);
+  background: rgba(0, 0, 0, 0.72); color: #fff; font-weight: 600; white-space: nowrap; }   /* nom du lieu, à droite du point */
+.point-carte.nom-a-gauche .nom { left: auto; right: calc(100% + 12px); }
+.carte-comparee .carte-fond { touch-action: none; }   /* carte fixe : pas de zoom du navigateur au pincement */
+/* zoom exact (fractionnaire) : chaque tuile déborde d'un pixel sur sa voisine, en mode de fusion normal (celui de Leaflet,
+   plus-lighter, éclaircit ce chevauchement) : pas de fines lignes entre les tuiles */
+.carte-comparee .leaflet-container img.leaflet-tile { mix-blend-mode: normal; width: 257px !important; height: 257px !important; }
+.carte-ouvrir { position: absolute; right: var(--marge); bottom: calc(var(--marge) + 1.6em); z-index: 1000; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5); }   /* icône de carte, au-dessus de l'attribution */
+.carte-ouvrir svg { width: 58%; height: 58%; fill: currentColor; stroke: none; }
+/* Fond de carte récente (12 novembre 2026, soir) : en gris, pour s'accorder à la gravure; à gauche du rideau, le même fond
+   prend la teinte du papier de la carte ancienne (plan « teinte » de js/carte.js, découpé au rideau) */
+.carte-comparee .leaflet-tile-pane { filter: grayscale(1) contrast(0.9) brightness(1.06); }
+.carte-comparee .leaflet-teinte-pane { filter: grayscale(0.7) sepia(0.18) contrast(0.95) brightness(1.03); }   /* moins jaune : garde un peu des couleurs et les contours gris (soir du 12 novembre 2026; auparavant, grayscale(1) sepia(0.6) brightness(1.05)) */
+/* Points : cachés jusqu'au toucher de la carte (7 secondes), qu'indique une main */
+.carte-comparee.points-caches .point-carte { opacity: 0 !important; pointer-events: none !important; }
+.carte-comparee .carte-main { left: 25%; top: 58%; z-index: 950; }
+.carte-comparee:not(.points-caches) .carte-main { opacity: 0; visibility: hidden; }
+/* Bulle d'invitation, à droite de la poignée du rideau : 5 secondes, en bougeant un peu (js/carte.js) */
+.carte-invite { position: absolute; top: var(--poignee-haut); left: calc(var(--bouton) / 2 + 30px); padding: 0.45em 0.85em; border-radius: var(--rayon-puce);
+  background: #fff; color: #1d2126; font-size: var(--taille-texte); font-weight: 600; white-space: nowrap; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  transform: translateY(-50%); opacity: 0; visibility: hidden; transition: opacity 0.5s, visibility 0.5s; pointer-events: none; }
+.carte-invite::before { content: ""; position: absolute; right: 100%; top: 50%; margin-top: -0.6em; border: 0.6em solid transparent; border-right-color: #fff; }
+.carte-rideau.invite .carte-invite { opacity: 1; visibility: visible; animation: carte-invite 1s ease-in-out infinite; }
+@keyframes carte-invite { 0%, 100% { transform: translate(0, -50%); } 50% { transform: translate(14px, -50%); } }
+/* rideau dans la moitié droite (au départ, au scénario 2 : au bord droit de la carte ancienne) : bulle à gauche de la poignée */
+.carte-rideau.a-droite .carte-invite { left: auto; right: calc(var(--bouton) / 2 + 30px); }
+.carte-rideau.a-droite .carte-invite::before { right: auto; left: 100%; border-right-color: transparent; border-left-color: #fff; }
+.carte-rideau.a-droite.invite .carte-invite { animation-name: carte-invite-gauche; }
+@keyframes carte-invite-gauche { 0%, 100% { transform: translate(0, -50%); } 50% { transform: translate(-14px, -50%); } }
+/* Ouverture du scénario 2 : la carte ancienne en plein écran, sur la page floue et pâlie, puis à sa place (js/carte.js) */
+.carte-intro { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 40; background: rgba(15, 15, 15, 0.35); transition: background 1.2s; }
+.carte-intro.glisse { background: transparent; pointer-events: none; }
+.carte-intro-image { position: absolute; left: 0; top: 0; transform-origin: 0 0; background: #fff; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6); opacity: 0;
+  transition: opacity 0.8s, transform 2.4s cubic-bezier(0.45, 0, 0.25, 1), box-shadow 2.4s; }
+.carte-intro.pret .carte-intro-image { opacity: 1; }
+.carte-intro.glisse .carte-intro-image { box-shadow: none; }
+.carte-intro.efface .carte-intro-image { opacity: 0; }
+#scene.carte-intro-active #parcours, #scene.carte-intro-active #visualisation, #scene.carte-intro-active #bas { filter: blur(18px); opacity: 0.3; pointer-events: none; }
+/* Main qui touche : sur l'image de la carte du dessus (scénarios 1 et 3) et sur la carte comparative (scénario 2); elle
+   invite à toucher, et se cache pendant que les éléments ou les points sont affichés */
+.main-toucher { position: absolute; z-index: 3; width: calc(var(--bouton) * 1.15); height: calc(var(--bouton) * 1.15); margin: calc(var(--bouton) * -0.575) 0 0 calc(var(--bouton) * -0.575);
+  border-radius: 50%; background: var(--fond-bouton); color: #fff; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center;
+  pointer-events: none; transition: opacity 0.3s, visibility 0.3s; animation: main-toucher 1.6s ease-in-out infinite; }
+.main-toucher svg { width: 64%; height: 64%; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.main-toucher svg .arcs { animation: main-arcs 1.6s ease-in-out infinite; }
+@keyframes main-toucher { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+@keyframes main-arcs { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+.carte-image .main-toucher { left: 50%; top: 82%; }
+.carte-image.etiquettes .main-toucher { opacity: 0; visibility: hidden; }
+/* « Fin » : au bout du chemin, à la place de la main (js/pile.js; 13 novembre 2026); pastille du gris des boutons, sans mouvement */
+.carte-image .fin-chemin { position: absolute; z-index: 3; left: 50%; top: 82%; transform: translate(-50%, -50%); padding: 0.35em 1.2em;
+  border-radius: var(--rayon-puce); background: var(--fond-bouton); color: #fff; font-size: var(--taille-sous-titre); font-weight: 600;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5); pointer-events: none; }
+.carte-absente { margin: 0; padding: var(--marge); color: var(--discret); }
+#video-absente { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: var(--marge); text-align: center; color: var(--discret); font-size: var(--taille-texte); background: var(--gris); }
+#video-commandes { grid-area: 1 / 2 / 2 / 10; display: flex; align-items: center; gap: 72px; padding: 0 96px; }
+/* Titre de la vidéo, du modèle 3D ou de la carte : en haut à gauche de la vidéo ou de l'entrée, sur une bande sombre et
+   translucide, comme la source en filigrane; même forme, même taille et même place partout (accueil et scénarios), à la
+   taille du texte courant (soir du 12 novembre 2026; auparavant, en bas à gauche, à droite du bouton du coin, sauf au
+   scénario 2, à la taille des sous-titres) */
+#video-titre { position: absolute; left: var(--marge); top: var(--marge); z-index: 5; max-width: calc(100% - 2 * var(--marge));
+  display: flex; align-items: center; pointer-events: none; }
+#video-libelle { padding: 0.2em 0.6em; border-radius: var(--rayon-puce); background: rgba(0, 0, 0, 0.72);
+  font-size: var(--taille-texte); line-height: 1.25; font-weight: 600; color: #fff; }
+#scene.video-plein #video-titre { display: none; }   /* vidéo en plein écran : seule la source reste, en filigrane */
+#ligne-temps { position: relative; flex: 1; height: 160px; }   /* fil des choix (js/pile.js) */
+/* « Tableau blanc » : en bas à droite de la zone « Vidéo/Tableau blanc » */
+/* Menu du coin : en bas à gauche, toujours au même endroit (accueil et scénarios), par-dessus la vidéo ou le modèle 3D;
+   bouton rond du coin (trois traits), qui déploie au-dessus de lui « Accueil » et « Tableau blanc », boutons ronds avec leur nom */
+/* menu du coin : plus bas, toujours au même endroit, en bas à gauche de la page (soir du 12 novembre 2026; auparavant, à 220 px du bas au mur, 48 px en 16:9);
+   un peu plus à gauche, le même soir (--coin-gauche : au mur, 24 px; en 16:9, 4 px; auparavant, 48 et 8 px) */
+#coin { position: absolute; left: var(--coin-gauche, 24px); bottom: var(--marge); z-index: 8; display: flex; flex-direction: column; align-items: flex-start; gap: 28px; }
+#coin-menu { display: flex; flex-direction: column; gap: 28px; }
+#coin-menu[hidden] { display: none; }
+.coin-action { display: flex; align-items: center; gap: 24px; padding: 0; border: 0; background: none; font: inherit; color: var(--texte); cursor: pointer; touch-action: none; animation: coin-deploie 0.25s ease-out; }
+.coin-libelle { font-size: var(--taille-texte); padding: 0.3em 0.8em; border-radius: var(--rayon-puce); background: rgba(15, 15, 15, 0.82); white-space: nowrap; }
+@keyframes coin-deploie { from { opacity: 0; transform: translateY(30px); } }
+#btn-coin .fermer, #scene.coin-ouvert #btn-coin .ouvrir { display: none; }
+#scene.coin-ouvert #btn-coin .fermer { display: inline; }
+#btn-coin, .coin-action .icone { box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5); }
+#scene[data-etat="C"] #coin { visibility: hidden; }   /* tableau blanc : les consignes ont « Réduire le tableau blanc » */   /* « Accueil » et « Tableau blanc » : en bas à gauche, juste à droite de la vidéo, à portée de main */
+#scene[data-base="A"] #btn-accueil { display: none; }   /* à l'accueil : seulement « Tableau blanc » */
+/* Parcours (?parcours=1, js/parcours.js; 13 novembre 2026) : « Parcours » en haut du menu du coin; son panneau à droite du
+   menu, au ras du bas : télécharger le parcours en CSV ou en JSON, l'effacer (un second toucher confirme), fermer */
+#btn-parcours[hidden] { display: none; }
+#parcours-panneau { position: absolute; left: calc(var(--coin-gauche, 24px) + var(--bouton) + 28px); bottom: var(--marge); z-index: 9;
+  width: max-content; max-width: calc(var(--t) * 44); padding: calc(var(--t) * 0.7) calc(var(--t) * 0.9); border-radius: var(--rayon-puce);
+  background: rgba(15, 15, 15, 0.94); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5); color: var(--texte); }
+#parcours-panneau[hidden], #scene[data-etat="C"] #parcours-panneau, #scene[data-etat="D"] #parcours-panneau { display: none; }
+#parcours-panneau h2 { margin: 0 0 0.3em; }
+#parcours-panneau p { margin: 0 0 0.8em; color: var(--discret); }
+#parcours-panneau .actions { display: flex; flex-wrap: wrap; gap: calc(var(--t) * 0.4); }
+#parcours-panneau .bouton.confirmer { background: #7a1f1f; }
+#ligne-fond { display: none; position: absolute; left: 0; right: 0; top: 50%; height: 14px; margin-top: -7px; background: rgba(255, 255, 255, 0.2); border-radius: 7px; overflow: hidden; }
+#ligne-progression { height: 100%; width: 0; background: var(--clair); }
+.pastille {
+  position: absolute; top: 50%; width: var(--bouton); height: var(--bouton); margin: calc(var(--bouton) / -2) 0 0 calc(var(--bouton) / -2);
+  font: inherit; font-size: var(--taille-texte); font-weight: 600; color: var(--texte);
+  background: var(--gris); border: 6px solid var(--fond); border-radius: 50%; cursor: pointer; touch-action: manipulation;
+  display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.pastille.atteinte { color: var(--fond); background: var(--clair); }
+.pastille.courante { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.35); }   /* carte du dessus de la pile */
+.intitule.courante .texte { font-weight: 600; }
+/* progression de la vidéo : mince barre au bas de la vidéo, comme sur une vignette de vidéo */
+#video-barre { position: absolute; left: 0; right: 0; bottom: 0; height: 12px; z-index: 3; background: rgba(255, 255, 255, 0.2); pointer-events: none; }
+#video-progression { height: 100%; width: 0; background: var(--clair); }
+#video-bloc .filigrane { bottom: 12px; left: calc(var(--coin-gauche, 24px) + var(--bouton) + 24px); }   /* au-dessus de la barre de progression; à droite du menu du coin */
+#objet-image .filigrane { max-width: 100%; }   /* image de la notice : pas de barre de commandes */
+/* Même disposition des zones de l'accueil (A) aux parcours (B) : la vidéo garde sa place et sa taille (au mur, 1 280 × 720 px;
+   en 16:9, 640 × 360 px), sauf pendant ses 10 premières secondes; la ligne du temps commence au même endroit.
+   Exception : le modèle 3D du scénario 2, plus grand en permanence (voir #video-bloc). */
+/* intitulé d'un repère : titre de l'objet, relié à la pastille par un petit trait */
+.intitule {
+  position: absolute; transform: translateX(-50%); padding: 0; z-index: 1;
+  font: inherit; font-size: var(--taille-texte); line-height: 1.2; text-align: center; color: var(--discret);
+  background: none; border: 0; cursor: pointer; touch-action: manipulation;
+}
+.intitule .texte { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
+/* position, largeur et traits calculés par js/video.js (disposerIntitules) à partir de ces réglages */
+#pastilles { --intitule-max: 720px; --intitule-espace: 32px; --intitule-ecart: 56px; --intitule-ecart-max: 150px; }
+.intitule { opacity: 0; pointer-events: none; transition: opacity 0.8s; }   /* l'intitulé apparaît quand son repère est atteint, en même temps que l'objet dans le nuage */
+.intitule.atteinte { opacity: 1; pointer-events: auto; color: var(--texte); }
+.traits-intitules { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+.trait-intitule { fill: none; stroke: var(--eteint); stroke-width: 3; stroke-linejoin: round; opacity: 0; transition: opacity 0.8s; }
+.trait-intitule.atteinte { stroke: var(--clair); opacity: 1; }
+/* Possibilités : depuis chaque pastille, de l'autre côté de la ligne que son intitulé, en gris et à demi transparentes,
+   avec l'intitulé de la carte où elles mènent : chemins non choisis, puis choix à venir depuis la dernière carte;
+   les toucher fait prendre ce chemin (js/pile.js) */
+/* fil de la constellation : d'une étoile à la suivante, clair jusqu'à la carte du dessus */
+.trait-fil { stroke: var(--eteint); stroke-width: 5; stroke-linecap: round; }
+.trait-fil.atteint { stroke: var(--clair); }
+.e169 .trait-fil { stroke-width: 2; }
+.trait-branche { fill: none; stroke: var(--eteint); stroke-width: 3; stroke-dasharray: 10 8; opacity: 0.8; }
+.branche { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 0; border: 0; background: none;
+  font: inherit; font-size: var(--taille-texte); line-height: 1.2; text-align: center; color: var(--discret); opacity: 0.6; cursor: pointer; touch-action: none; transform: translateX(-50%); }
+.branche.haut { flex-direction: column-reverse; }
+.branche .point { flex: none; width: calc(var(--bouton) * 0.45); height: calc(var(--bouton) * 0.45); border-radius: 50%; border: 4px solid var(--eteint); background: var(--fond); }
+.branche .texte { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
+.branche:hover, .branche:active { opacity: 0.9; }
+.branche.une-ligne .texte { -webkit-line-clamp: 1; }   /* embranchements empilés, faute de largeur (16:9) */
+/* choix possibles depuis la dernière carte du fil : un peu plus visibles que les chemins non choisis */
+.branche.suite { opacity: 0.85; }
+.branche.suite .point { border-color: var(--discret); }
+.trait-branche.suite { stroke: var(--discret); }
+.e169 .trait-branche { stroke-width: 1; stroke-dasharray: 4 3; }
+.e169 .branche { gap: 3px; }
+.e169 .branche .point { border-width: 2px; }
+#scene[data-etat="C"] #video-bloc, #scene[data-etat="C"] #video-commandes { visibility: hidden; }
+/* Accueil (état A) : pas de fil des choix; à droite de la vidéo d'introduction, seulement son titre, centré en hauteur. */
+#scene[data-base="A"] #video-commandes { position: static; justify-content: flex-start; }
+#scene[data-base="A"] #ligne-temps { display: none; }
+
+#consignes { grid-area: 1 / 1 / 2 / 3; padding: var(--marge) 72px; display: flex; flex-direction: column; gap: 0.5em; overflow: hidden; background: var(--fond); border-right: 4px solid var(--gris); }
+#consignes h2 { color: var(--texte); }
+#texte-consignes { font-size: var(--taille-texte); }
+#texte-consignes.a-venir { color: var(--discret); }
+#btn-reduire-consignes, #btn-oublier { align-self: flex-start; }
+#salle-bloc { margin-top: auto; display: flex; flex-direction: column; gap: 0.3em; }
+#salle-lien { font-size: var(--taille-texte); word-break: break-all; color: var(--discret); }
+#salle-formulaire { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; font-size: var(--taille-texte); }
+#salle-formulaire label { width: 100%; color: var(--discret); }
+#salle-formulaire input { flex: 1; min-width: 0; font: inherit; padding: 0.5em 0.8em; color: var(--texte); background: #121212; border: 3px solid #303030; border-radius: var(--rayon-puce); }
+#salle-formulaire input:focus { outline: none; border-color: var(--lien); }
+#salle-formulaire input { min-height: var(--bouton); box-sizing: border-box; }
+#salle-erreur { width: 100%; color: #ff6b6b; }
+#tableau { grid-area: 1 / 3 / 2 / 10; display: flex; }
+#tableau-cadre { position: relative; flex: 1; overflow: hidden; background: #181818; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8em; padding: var(--marge); text-align: center; }
+#tableau-message { color: var(--discret); font-size: var(--taille-texte); max-width: 40em; }
+#tableau-commandes { flex: none; width: 640px; display: flex; align-items: center; justify-content: center; padding: 0 40px; background: var(--fond); }
+#tableau-commandes .bouton { white-space: normal; text-align: center; }
+#scene:not([data-etat="C"]) #consignes, #scene:not([data-etat="C"]) #tableau { visibility: hidden; }
+
+/* ---------- État D : affichage plein écran ---------- */
+#plein { grid-area: 1 / 1 / 4 / 10; position: relative; z-index: 10; background: transparent; display: grid; grid-template-columns: repeat(9, 1280px); grid-template-rows: repeat(3, 720px); }
+#scene:not([data-etat="D"]) #plein { display: none; }
+/* Affichage plein écran (état D) : l'image (ou le modèle 3D) vient au premier plan, comme si elle se rapprochait,
+   par-dessus la page, qui reste visible derrière, floue et pâlie; même chose pour la vidéo en plein écran */
+#parcours, #visualisation, #bas, #video-commandes { transition: filter 0.5s, opacity 0.5s; }
+#scene[data-etat="D"] #parcours, #scene[data-etat="D"] #visualisation, #scene[data-etat="D"] #bas,
+#scene.video-plein #parcours, #scene.video-plein #visualisation, #scene.video-plein #video-commandes { filter: blur(18px); opacity: 0.3; pointer-events: none; }
+#scene[data-etat="D"] #visionneuse-plein { animation: rapprocher 0.6s ease-out; }
+@keyframes rapprocher { from { transform: scale(0.5); opacity: 0; } to { transform: none; opacity: 1; } }
+#scene.video-plein #bas { background: transparent; }
+#scene.video-plein #video-bloc, #scene.video-plein #video-hote video { background: transparent; }
+#visionneuse-plein { grid-area: 1 / 1 / 4 / 10; width: 100%; height: 100%; }
+#plein-encadre { grid-area: 3 / 1 / 4 / 3; position: relative; align-self: end; margin: var(--marge); padding: 40px 56px; z-index: 2; color: var(--texte); background: rgba(15, 15, 15, 0.88); border-radius: 24px; display: flex; flex-direction: column; gap: 0.3em; font-size: var(--taille-texte); max-height: calc(720px - 2 * var(--marge)); overflow: hidden; }
+#plein-encadre .titre { font-weight: 600; font-size: var(--taille-sous-titre); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+#plein-encadre strong { color: var(--discret); font-weight: 400; }
+#plein-encadre .a-venir { color: var(--eteint); }
+#plein-commandes { grid-area: 3 / 3 / 4 / 8; position: relative; align-self: end; justify-self: center; margin-bottom: 96px; z-index: 2; }   /* recentrer (cible) et fermer (X) */
+#plein-commandes { box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); }
+
+/* ---------- Jonctions des écrans (?grille=1), pour l'aperçu sur un ordinateur ---------- */
+#grille-ecrans { grid-area: 1 / 1 / 4 / 10; position: relative; z-index: 20; pointer-events: none; display: none;
+  background-image: linear-gradient(to right, rgba(220, 38, 38, 0.7) 6px, transparent 6px), linear-gradient(to bottom, rgba(220, 38, 38, 0.7) 6px, transparent 6px);
+  background-size: 1280px 100%, 100% 720px; background-position: -3px 0, 0 -3px; }
+#scene.grille #grille-ecrans { display: block; }
+
+/* Message d'erreur de chargement (hors du mur) */
+#message { position: fixed; left: 16px; right: 16px; top: 16px; z-index: 100; padding: 16px 20px; font: 16px/1.5 "Segoe UI", Arial, sans-serif; color: #fff; background: #b42318; border-radius: 8px; }
+#message code { background: rgba(0, 0, 0, 0.25); padding: 0 4px; border-radius: 4px; }
+
+/* =====================================================================================
+   Écran 16:9 (?ecran=16x9) : 1 920 × 1 080 px, pour présenter la maquette sur un ordinateur
+   ou un projecteur. Mêmes zones et mêmes états que le mur, proportions conservées :
+   « Parcours thématique » et « Visualisation et description de l'objet » sur les deux tiers
+   du haut, « Vidéo/Tableau blanc » sur le tiers du bas (vidéo 640 × 360 px).
+   ===================================================================================== */
+#scene.e169 { width: 1920px; height: 1080px; grid-template-columns: 1280px 640px; grid-template-rows: 720px 360px; --marge: 12px; --rayon: 8px; --rayon-puce: 8px; --coin-gauche: 4px; }
+.e169 #parcours { grid-area: 1 / 1 / 2 / 2; }
+.e169 #visualisation { grid-area: 1 / 2 / 2 / 3; grid-template-columns: 640px; grid-template-rows: 270px 165px 135px 150px; }
+.e169 #bas { grid-area: 2 / 1 / 3 / 3; grid-template-columns: 640px 1280px; grid-template-rows: 360px; }
+.e169 #plein { grid-area: 1 / 1 / 3 / 3; grid-template-columns: 640px 640px 640px; grid-template-rows: 720px 360px; }
+.e169 #grille-ecrans { display: none; }
+
+.e169 .bouton:focus-visible, .e169 .icone:focus-visible, .e169 .carte-image:focus-visible, .e169 .zone:focus-visible, .e169 .associe:focus-visible, .e169 .pastille:focus-visible, .e169 .vignette-video:focus-visible { outline-width: 3px; outline-offset: 2px; }
+
+.e169 #accueil { grid-template-columns: repeat(3, 1fr); column-gap: 24px; padding: 0 24px; }
+.e169 .carte { margin: 0; width: auto; gap: 12px; padding-bottom: 56px; }   /* toute la largeur de la colonne; au-dessus du menu du coin (soir du 12 novembre 2026 : toute la hauteur de l'écran) */
+#scene.e169[data-base="A"] #parcours { grid-area: 1 / 1 / 3 / 3; }   /* accueil sans vidéo ni thème : les cartes prennent tout l'écran */
+.e169 .vignette-video { border-radius: 0 0 12px 12px; }
+
+.e169 #scenario { --decalage: 14px; }
+.e169 .zone-point { border-width: 2px; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35); }
+/* 16:9 : la pile de cartes; au scénario 2, à droite (sur le coin supérieur droit de la carte comparative) */
+.e169 #pile { left: 560px; top: var(--marge); bottom: 16px; }   /* à droite de la colonne de gauche (boîte du titre quand la notice est ouverte) */
+.e169 #pile-vide { left: 560px; top: var(--marge); bottom: 16px; }
+.e169 .carte-pile { border-radius: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); }
+
+.e169 #visualisation > * { grid-column: 1; }
+.e169 #question { grid-area: 1 / 1 / 5 / 2; padding: 40px 36px; }
+#scene.e169[data-base="B"] #question { width: 640px; height: 640px; padding: 40px; }   /* carré du titre du scénario */
+.e169 #objet-image { grid-row: 1; }
+.e169 #bloc-description { grid-row: 2; }
+.e169 #objet-description { padding: 10px 16px; }
+.e169 #bloc-mots { grid-row: 3; border-top-width: 2px; }
+.e169 #objet-mots { padding: 8px 16px; }
+.e169 #bloc-associes { grid-row: 4; border-top-width: 2px; border-left: 0; }
+.e169 #objet-associes { padding: 8px 16px; }
+.e169 #visualisation h2 { margin-bottom: 0.3em; }
+.e169 #liste-mots { gap: 4px; }
+.e169 #liste-mots li { padding: 0.12em 0.55em; }
+.e169 #liste-associes { gap: 4px; }
+.e169 .associe { padding: 4px; gap: 0.5em; border-radius: 8px; }
+.e169 .associe .vignette { width: calc(var(--t) * 3.6); height: calc(var(--t) * 2.5); border-radius: 4px; }
+
+.e169 #video-bloc { grid-area: 1 / 1 / 2 / 2; }
+.e169 #bas:is([data-entree="modele3d"], [data-entree="carte"]) #video-bloc { width: 1080px; height: 720px; }
+.e169 #bas:is([data-entree="modele3d"], [data-entree="carte"]) #video-commandes { grid-column: 2 / 3; margin-left: 440px; }   /* à droite du modèle 3D (1 080 px) */
+#scene.e169:is([data-entree="modele3d"], [data-entree="carte"]) #pile, #scene.e169:is([data-entree="modele3d"], [data-entree="carte"]) #pile-vide { left: 560px; right: var(--marge); bottom: 230px; }   /* images au-dessus du modèle, décalées vers la droite : elles chevauchent son coin en haut à droite */
+#scene.e169 { --ombre-bas: 18px -18px 48px 2px rgba(0, 0, 0, 0.95); }
+#scene.e169.video-plein #video-bloc { width: 300%; height: 300%; }
+.e169 #video-plein-barre { right: 8px; bottom: 12px; }
+.e169 #video-commandes { grid-area: 1 / 2 / 2 / 3; position: relative; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 0; padding: 20px 24px; }
+.e169 #ligne-temps { position: absolute; left: 24px; right: 24px; top: 16px; bottom: 12px; }   /* la constellation occupe la zone, le titre étant au-dessus de la vidéo */
+.e169 #coin { bottom: 12px; gap: 10px; }
+.e169 #parcours-panneau { bottom: 12px; left: calc(var(--coin-gauche) + var(--bouton) + 10px); }
+.e169 #coin-menu { gap: 10px; }
+.e169 .coin-action { gap: 8px; }
+.e169 .lecture-video:focus-visible { outline-width: 3px; outline-offset: 2px; }
+.e169 .point-entree { border-width: 2px; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35); }
+.e169 #entree-hote .carte-comparee { --point-carte: 30px; }
+.e169 #visionneuse-plein .carte-comparee { --point-carte: 34px; }
+.e169 .carte-comparee .leaflet-control-attribution { font-size: 11px; padding: 0 5px; }
+.e169 .carte-rideau { width: 3px; margin-left: -1.5px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45); }
+.e169 .carte-poignee, .e169 .point-carte { border-width: 2px; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.4); }
+.e169 .point-carte .nom { left: calc(100% + 5px); }
+.e169 .point-carte.nom-a-gauche .nom { left: auto; right: calc(100% + 5px); }
+.e169 .carte-ouvrir { right: 8px; bottom: 26px; }
+.e169 .carte-ouvrir:focus-visible { outline-width: 3px; outline-offset: 2px; }
+.e169 .carte-invite { left: calc(var(--bouton) / 2 + 16px); }
+.e169 .carte-rideau.a-droite .carte-invite { left: auto; right: calc(var(--bouton) / 2 + 16px); }
+.e169 .carte-intro-image { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6); }
+.e169 .main-toucher svg { stroke-width: 1.8; }
+.e169 #entree-commandes { bottom: 10px; }
+/* le texte ne dépasse jamais le coin de la zone du haut (bord gauche de la zone grise, à 1 280 px) */
+/* 16:9 : titre de la vidéo (ou de l'entrée) en bas à gauche, à droite du bouton du coin (12 novembre 2026) */
+.e169 #video-titre { left: 8px; top: 8px; max-width: calc(100% - 16px); }
+.e169 #ligne-temps { height: auto; }
+.e169 #ligne-fond { height: 5px; margin-top: -2.5px; border-radius: 3px; }
+.e169 #video-barre { height: 4px; }
+.e169 #video-bloc .filigrane { bottom: 4px; left: calc(var(--coin-gauche) + var(--bouton) + 4px); }
+.e169 .pastille.courante { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.35); }
+.e169 .pastille { border-width: 2px; }
+.e169 #pastilles { --intitule-max: 190px; --intitule-espace: 10px; --intitule-ecart: 16px; --intitule-ecart-max: 48px; }
+.e169 .trait-intitule { stroke-width: 1; }
+.e169 #consignes { grid-area: 1 / 1 / 2 / 2; padding: 12px 16px; border-right-width: 2px; }
+.e169 #salle-formulaire { gap: 6px; }
+.e169 #salle-formulaire input { border-width: 1px; }
+.e169 #tableau { grid-area: 1 / 2 / 2 / 3; }
+.e169 #tableau-commandes { width: 160px; padding: 0 10px; }
+
+.e169 #visionneuse-plein { grid-area: 1 / 1 / 3 / 4; }
+.e169 #plein-encadre { grid-area: 2 / 1 / 3 / 2; padding: 14px 18px; border-radius: 8px; max-height: 336px; }
+.e169 #plein-commandes { grid-area: 2 / 2 / 3 / 3; margin-bottom: 28px; }
+
+/* =====================================================================================
+   Mode édition (?edition=1, js/edition.js) : bâtir les parcours. Au mur, le panneau prend la place des notices
+   (colonnes 7 à 9, rangées 1 et 2), sur trois colonnes; en 16:9, il s'ajoute à droite de la page, à sa taille réelle.
+   ===================================================================================== */
+#edition { display: flex; flex-direction: column; gap: 0.8em; overflow-y: auto; overscroll-behavior: contain;
+  padding: var(--marge) 72px; color: var(--texte); background: var(--gris); font-size: var(--taille-texte); line-height: 1.3;
+  user-select: text; -webkit-user-select: text; }
+#scene > #edition { grid-area: 1 / 7 / 3 / 10; position: relative; z-index: 5; }
+#scene.edition-test > #edition { grid-area: 1 / 9 / 2 / 10; align-self: start; justify-self: end; z-index: 11; padding: var(--marge); background: none; overflow: visible; }
+#scene.edition-test > #edition h2, #scene.edition-test > #edition .edition-test-texte { display: none; }
+body > #edition { position: fixed; z-index: 30; top: 0; right: 0; bottom: 0; width: var(--edition-largeur, 420px);
+  padding: 14px 16px 28px; border-left: 1px solid #3a3a3a;
+  --t: 15px; --taille-texte: 14px; --taille-sous-titre: 17px; --bouton: 30px; --rayon-puce: 8px; --marge: 12px; }
+#edition h2 { margin: 0; font-size: var(--taille-sous-titre); }
+#edition h3 { margin: 0; font-size: var(--taille-texte); font-weight: 600; color: var(--clair); }
+.edition-tete { display: flex; align-items: center; justify-content: space-between; gap: 0.6em; flex-wrap: wrap; }
+.edition-actions { display: flex; flex-wrap: wrap; gap: 0.4em; }
+#edition .bouton { padding: 0.25em 0.8em; }
+.edition-message { padding: 0.45em 0.8em; border-left: 4px solid var(--lien); border-radius: 4px; background: rgba(62, 166, 255, 0.14); }
+.edition-scenario { font-weight: 600; }
+.edition-colonnes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 96px; align-items: start; }
+body > #edition .edition-colonnes { display: flex; flex-direction: column; gap: 0.8em; }
+.edition-colonne { display: flex; flex-direction: column; gap: 0.8em; min-width: 0; }
+.edition-colonne:empty { display: none; }
+.edition-section { display: flex; flex-direction: column; gap: 0.45em; padding-top: 0.7em; border-top: 1px solid var(--gris-2); }
+.edition-aide { color: var(--discret); }
+.edition-ligne { display: grid; grid-template-columns: 7em minmax(0, 1fr); align-items: center; gap: 0.5em; }
+.edition-ligne > span { color: var(--discret); }
+#edition input, #edition select { width: 100%; min-width: 0; min-height: var(--bouton); padding: 0.25em 0.5em; font: inherit; color: var(--texte); background: #161616; border: 1px solid #4a4a4a; border-radius: var(--rayon-puce); }
+#edition input:focus-visible, #edition select:focus-visible { outline: 2px solid var(--lien); outline-offset: 1px; }
+#edition .bouton:focus-visible { outline-width: 2px; outline-offset: 2px; }
+/* élément ou point : numéro, libellé et « Retirer » sur une ligne; image liée et « Suivre » sous le libellé */
+.rang-element { display: grid; grid-template-columns: 1.7em minmax(0, 1fr) auto; grid-template-areas: "n l r" ". v s"; gap: 0.35em 0.4em; align-items: center; padding: 0.3em; border-radius: var(--rayon-puce); }
+.rang-element > .rang-numero { grid-area: n; }
+.rang-element > input { grid-area: l; }
+.rang-element > select { grid-area: v; }
+.rang-element > [data-cle^="suivre"] { grid-area: s; }
+.rang-element > [data-cle^="retirer"], .rang-element > [data-cle^="point-retirer"] { grid-area: r; }
+.rang-element.selection { background: rgba(62, 166, 255, 0.18); }
+.rang-numero { display: flex; align-items: center; justify-content: center; width: 1.7em; height: 1.7em; border-radius: 50%; background: var(--gris-2); font-weight: 600; }
+.edition-images { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25em; }
+.edition-images li { display: grid; grid-template-columns: 3.6em minmax(0, 1fr) auto auto; gap: 0.5em; align-items: center; padding: 0.2em; border-radius: var(--rayon-puce); }
+.edition-images li.courante { background: rgba(255, 255, 255, 0.08); }
+.edition-images .vignette { width: 3.6em; height: 2.5em; border-radius: 4px; background: var(--gris-2); overflow: hidden; }
+.edition-images .vignette img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.edition-images .nom { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.edition-ajout { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.4em; }
+.edition-verification { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 0.25em; }
+.edition-verification .alerte { color: #ffb36b; }
+.edition-verification .ok { color: #8fd694; }
+.edition-verification .info { color: var(--discret); }
+/* éléments de la carte du dessus : toujours visibles; un clic sur l'image en ajoute un; un point se glisse */
+#scene.edition .carte-pile[data-rang="0"] .zone { visibility: visible; opacity: 1; cursor: grab; touch-action: none; }
+#scene.edition .carte-pile[data-rang="0"] .carte-image { cursor: crosshair; }
+#scene.edition .zone.sans-lien .zone-point { background: #ffb36b; }
+#scene.edition .zone.selection .zone-point { animation: none; box-shadow: 0 0 0 calc(var(--point) * 0.25) var(--lien); }
+#scene.edition .zone.selection .zone-etiquette { box-shadow: 0 0 0 3px var(--lien); }
+#scene.edition-ajout-point #entree-hote { cursor: crosshair; }
+
+/* ---------- Écrans hors service (?eviter=3-4) : colonnes 3 et 4, rangées 1 et 2 ----------
+   Rien d'important ne s'y affiche : cartes de scénario sur les écrans 1, 2 et 5; pile sur les
+   colonnes 5 et 6; affichage plein écran et vidéo en plein écran centrés sur les colonnes 5 à 9. */
+/* accueil (soir du 12 novembre 2026 : ni vidéo ni thème) : cartes des parcours de deux colonnes d'écrans chacune, sur les
+   colonnes 1 et 2, 5 et 6, 7 et 8, rangées 1 à 3; texte dans le premier écran de la carte */
+#scene.eviter-3-4[data-base="A"] #parcours { grid-area: 1 / 1 / 4 / 10; }
+#scene.eviter-3-4 #accueil { grid-template-columns: repeat(9, 1280px); }
+#scene.eviter-3-4 #accueil > .carte { margin: 0 200px; }
+#scene.eviter-3-4 #accueil > .carte .infos { max-width: 1020px; }
+#scene.eviter-3-4 #accueil > .carte:nth-child(1) { grid-column: 1 / 3; }
+#scene.eviter-3-4 #accueil > .carte:nth-child(2) { grid-column: 5 / 7; }
+#scene.eviter-3-4 #accueil > .carte:nth-child(3) { grid-column: 7 / 9; }
+#scene.eviter-3-4[data-base="A"] #video-commandes { grid-column: 3 / 5; }
+#scene.eviter-3-4 #pile, #scene.eviter-3-4 #pile-vide,
+#scene.eviter-3-4:is([data-entree="modele3d"], [data-entree="carte"]) #pile, #scene.eviter-3-4:is([data-entree="modele3d"], [data-entree="carte"]) #pile-vide { left: calc(4 * 1280px + var(--marge)); }
+#scene.eviter-3-4 #visionneuse-plein { grid-area: 1 / 5 / 4 / 10; }
+#scene.eviter-3-4.video-plein #video-hote video { object-position: calc(100% * 5 / 6) 50%; }   /* vidéo 16:9 (3 840 px de large) : colonnes 6 à 8 */
+/* scénario choisi : la vidéo garde les colonnes 1 et 2, rangées 2 et 3, comme le modèle 3D du scénario 2 */
+#scene.eviter-3-4[data-base="B"]:not(.video-plein) #video-bloc { width: 200%; height: 200%; }
+#scene.eviter-3-4[data-base="B"] #video-commandes { grid-column: 3 / 10; }
+
+/* ---------- Accueil (état A), au mur ----------
+   Ni vidéo ni thème depuis le soir du 12 novembre 2026 (la vidéo d'ouverture la précède, en plein écran : js/ouverture.js) :
+   les trois parcours prennent tout le mur, trois colonnes d'écrans chacun (colonnes 1 à 3, 4 à 6, 7 à 9), sur toute la
+   hauteur, alignés. L'image passe les jonctions des écrans; la pastille de lecture tombe au milieu de l'écran du centre;
+   le texte reste dans le premier écran de la carte. Auparavant : vidéo d'introduction en 3 × 3 (colonnes 1 à 3), une
+   colonne par parcours (colonnes 4, 5 et 6) et le thème (colonnes 7 à 9; un moment, deux colonnes par parcours).
+   Rangée du bas : seulement le menu du coin, en bas à gauche, dans la marge de la première carte. */
+#scene[data-base="A"] #video-bloc { display: none; }   /* accueil sans vidéo (mur et 16:9) */
+#scene:not(.e169):not(.eviter-3-4)[data-base="A"] #parcours { grid-area: 1 / 1 / 4 / 10; }
+#scene[data-base="A"] #bas { background: transparent; pointer-events: none; }   /* les cartes passent sous la rangée du bas */
+#scene[data-base="A"] #bas > * { pointer-events: auto; }
+#scene:not(.e169):not(.eviter-3-4)[data-base="A"] #video-commandes { grid-column: 3 / 10; pointer-events: none; }
+#scene:not(.e169):not(.eviter-3-4) #accueil { grid-template-columns: repeat(9, 1280px); }
+#scene:not(.e169) #accueil > .carte { grid-row: 1; margin: 0 90px; width: auto; }
+#scene:not(.e169):not(.eviter-3-4) #accueil > .carte { margin: 0 200px; }   /* marge à gauche : le menu du coin */
+#scene:not(.e169):not(.eviter-3-4) #accueil > .carte .infos { max-width: 1020px; }   /* texte dans le premier écran de la carte */
+#scene:not(.e169):not(.eviter-3-4) #accueil > .carte:nth-child(1) { grid-column: 1 / 4; }
+#scene:not(.e169):not(.eviter-3-4) #accueil > .carte:nth-child(2) { grid-column: 4 / 7; }
+#scene:not(.e169):not(.eviter-3-4) #accueil > .carte:nth-child(3) { grid-column: 7 / 10; }
+/* scénario choisi : la vidéo s'ouvre en 3 × 3 pendant 20 secondes, puis garde 2 × 2 (avec ?eviter=3-4 : 2 × 2 dès l'ouverture) */
+#scene.video-grande:not(.e169):not(.eviter-3-4) #video-bloc { width: 300%; height: 300%; }
+
+/* ---------- Ouverture (js/ouverture.js), soir du 12 novembre 2026 ----------
+   À l'ouverture de la page, avant l'accueil, une seule fois : la vidéo d'ouverture en plein écran (au mur, 3 840 × 2 160 px,
+   centrée; en 16:9, tout l'écran). Au-dessus de la vidéo, sur le fond noir : le thème, mot par mot (14 novembre 2026;
+   plus de syllabaire). En bas à droite : pause et X (quitter); la source en filigrane, en bas à gauche. */
+#ouverture { position: absolute; inset: 0; z-index: 60; background: #000; transition: opacity 0.7s; }
+#ouverture[hidden] { display: none; }
+#ouverture.ferme { opacity: 0; pointer-events: none; }
+/* vidéo un peu plus petite que l'écran (de 20 % à 98 % de la hauteur) : le titre s'affiche au-dessus, sur le fond noir
+   (14 novembre 2026; dessous auparavant) */
+#ouverture-video { position: absolute; left: 0; right: 0; top: 20%; height: 78%; }
+#ouverture-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
+#ouverture-absente { position: absolute; left: 0; right: 0; top: 56%; margin: 0; text-align: center; color: var(--discret); font-size: var(--taille-sous-titre); }
+#ouverture-absente[hidden] { display: none; }
+/* Titre du thème (14 novembre 2026) : au-dessus de la vidéo, sur le fond noir (de 2 % à 19 % de la hauteur); capitales
+   grasses. Mot par mot, chaque mot tombe, plus gros et flou, puis se fixe avec un léger rebond; un trait blanc souligne
+   ensuite le titre, qui grossit très lentement pendant qu'il reste (--duree), puis s'efface en montant (« sortie »).
+   Mouvements réduits (prefers-reduced-motion) : un simple fondu. */
+#ouverture-titre { position: absolute; left: 0; right: 0; top: 2%; height: 17%; z-index: 2; margin: 0; display: grid; place-items: center; pointer-events: none;
+  opacity: 0; transition: opacity 0.6s ease, transform 1.6s ease;
+  font-size: calc(var(--t) * 4.4); line-height: 1.05; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; color: #fff; text-align: center;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.75), 0 0 3px rgba(0, 0, 0, 0.6); }
+#ouverture-titre.visible { opacity: 1; }
+#ouverture-titre.sortie { opacity: 0; transform: translateY(-4%); transition-duration: 1.6s; }
+#ouverture-fr { position: relative; display: inline-block; max-width: 92%; padding-bottom: 0.22em; }
+#ouverture-fr .mot { display: inline-block; opacity: 0; }
+#ouverture-titre.visible #ouverture-fr { animation: ouverture-lent var(--duree, 17s) linear both; }
+#ouverture-titre.visible .mot { animation: ouverture-mot 0.75s cubic-bezier(0.2, 0.85, 0.3, 1) both; animation-delay: calc(var(--i) * 0.18s); }
+#ouverture-fr::after { content: ""; position: absolute; left: 50%; bottom: 0; width: 0; height: 0.07em; background: #fff; transform: translateX(-50%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6); }
+#ouverture-titre.visible #ouverture-fr::after { animation: ouverture-trait 0.6s ease-out both; animation-delay: calc(var(--n) * 0.18s + 0.4s); }
+@keyframes ouverture-mot {
+  0% { opacity: 0; transform: translateY(-0.15em) scale(1.7); filter: blur(12px); }
+  55% { opacity: 1; transform: translateY(0) scale(0.94); filter: blur(0); }
+  78% { transform: scale(1.03); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+@keyframes ouverture-trait { from { width: 0; } to { width: 100%; } }
+@keyframes ouverture-lent { from { transform: scale(1); } to { transform: scale(1.06); } }
+@media (prefers-reduced-motion: reduce) {
+  #ouverture-titre { transition: opacity 1.2s ease; }
+  #ouverture-titre.sortie { transform: none; }
+  #ouverture-titre.visible #ouverture-fr, #ouverture-titre.visible .mot, #ouverture-titre.visible #ouverture-fr::after { animation: none; }
+  #ouverture-titre.visible .mot { opacity: 1; }
+  #ouverture-titre.visible #ouverture-fr::after { width: 100%; }
+}
+#ouverture-commandes { position: absolute; right: calc(2 * var(--marge)); bottom: 220px; z-index: 3; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); }
+#btn-ouverture-pause[hidden], #btn-ouverture-pause[hidden] + .separateur { display: none; }
+#btn-ouverture-pause .lecture, #btn-ouverture-pause.en-pause .pause { display: none; }
+#btn-ouverture-pause.en-pause .lecture { display: inline; fill: currentColor; stroke: none; }
+#ouverture .lecture-video { z-index: 3; top: 59%; }   /* au centre de la vidéo */
+#ouverture .filigrane { z-index: 3; }
+.e169 #ouverture-commandes { right: 12px; bottom: 12px; }
+#scene.eviter-3-4 #ouverture-video video { object-position: calc(100% * 5 / 6) 50%; }   /* écrans hors service : colonnes 6 à 8 */
+#scene.eviter-3-4 #ouverture-titre, #scene.eviter-3-4 #ouverture-absente { left: calc(4 * 1280px); }   /* centré sur les colonnes 5 à 9 */
+
+/* ---------- Toucher (js/toucher.js) : le navigateur ne transforme plus un léger glissement en défilement ---------- */
+#scene button, #scene .carte-image { touch-action: none; }
+
+/* ---------- Vérification des notices (?notices=1) ---------- */
+#notices { position: fixed; inset: 0; z-index: 200; overflow: auto; padding: 24px 32px 64px; font: 16px/1.5 "Segoe UI", Roboto, Inter, Arial, sans-serif; color: #1d2126; background: #f4f5f7; }
+#notices header { position: sticky; top: -24px; z-index: 1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 24px; margin: -24px -32px 16px; padding: 16px 32px; background: #fff; border-bottom: 1px solid #d0d4da; }
+#notices h1 { margin: 0; font-size: 22px; }
+#notices .resume { flex: 1; margin: 0; color: #4a5260; }
+#notices .bouton { font-size: 15px; min-height: 0; padding: 6px 16px; color: #fff; background: #1d2126; }
+#notices ol { margin: 0; padding-left: 28px; display: grid; gap: 16px; }
+#notices li { padding: 12px 16px; background: #fff; border: 1px solid #d0d4da; border-left: 6px solid #2e7d32; border-radius: 6px; }
+#notices li.a-verifier { border-left-color: #c77700; }
+#notices .entete { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; color: #4a5260; }
+#notices .notice .titre { margin: 6px 0; font-size: 19px; }
+#notices .notice .contexte { margin: 0 0 6px; }
+#notices .notice dl { display: grid; grid-template-columns: max-content 1fr; gap: 2px 16px; margin: 0; }
+#notices .notice dt { color: #4a5260; }
+#notices .notice dd { margin: 0; overflow-wrap: anywhere; }
+#notices .notice .a-venir, #notices .notice .erreur { color: #b42318; }
+#notices .credit { margin: 6px 0 0; font-size: 14px; }
+#notices .manque { margin: 8px 0 0; font-weight: 600; color: #2e7d32; }
+#notices .a-verifier .manque { color: #b25500; }
+#notices a { color: #0b57d0; }
+
+/* Scénario 2, carte comparative : pas de fil (ni ligne du temps, ni éléments sur les images) */
+#scene[data-entree="carte"] #ligne-temps { display: none; }

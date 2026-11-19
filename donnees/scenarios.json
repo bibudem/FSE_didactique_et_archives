@@ -1,0 +1,50 @@
+{
+  "theme": "Les Inuit et les chiens",
+  "source": "Billoux, 2026",
+  "ouverture": {
+    "video": null,
+    "titre_video": null,
+    "sous_titres": null,
+    "credit": null,
+    "credit_court": null,
+    "source": null,
+    "titre_apres": 20,
+    "titre_duree": 15
+  },
+  "consignes": null,
+  "scenarios": [
+    {
+      "id": "scenario-1",
+      "numero": 1,
+      "titre": "Le qimmiq, moteur de la mobilité et de la subsistance",
+      "entree": "Entrée par la vidéo",
+      "description": null,
+      "image": null,
+      "fichier": "donnees/scenario-1.json",
+      "credit": null,
+      "credit_court": null
+    },
+    {
+      "id": "scenario-2",
+      "numero": 2,
+      "titre": "La sédentarisation : une rupture dans l’occupation du territoire",
+      "entree": "Entrée par la carte",
+      "description": null,
+      "image": "20.500.14927/24945",
+      "credit": "Jaillot, A.-H. (1981). *Partie de la Nouvelle France : dédié à Monseigneur le Marquis de Seignelay et Lonré* [carte; fac-similé de l'édition de Paris, 1685]. Association des cartothèques canadiennes. Collections spéciales, Bibliothèques de l'Université de Montréal. [hdl.handle.net/20.500.14927/24945](https://hdl.handle.net/20.500.14927/24945).",
+      "credit_court": "Jaillot, 1981 · Collections spéciales UdeM",
+      "fichier": "donnees/scenario-2.json"
+    },
+    {
+      "id": "scenario-3",
+      "numero": 3,
+      "titre": "Le retour des attelages : revitalisation et transmission",
+      "entree": "Entrée par le territoire",
+      "description": null,
+      "image": null,
+      "credit": null,
+      "credit_court": null,
+      "fichier": "donnees/scenario-3.json"
+    }
+  ]
+}

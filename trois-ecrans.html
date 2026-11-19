@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trois écrans</title>
+<!-- Aperçu du mur avec trois appareils (13 novembre 2026) : trois pages 16:9 côte à côte, comme les écrans de trois équipes
+     diffusés chacun sur un tiers du mur (3 840 × 2 160 px). Chaque page ouvre son scénario (?scenario=N) et note son
+     parcours (?parcours=1, équipe 1, 2 ou 3). Au mur, chaque appareil ouvre plutôt sa propre page, par exemple
+     maquette-16x9.html?scenario=2&parcours=1&equipe=2, et le laboratoire diffuse les trois écrans.
+     Paramètres de cette page : ?page=index.html (version du site, servie par un serveur web) plutôt que la version autonome;
+     ?parcours=0 : sans enregistrement du parcours.
+     Version autonome (14 novembre 2026) : simulation-trois-ecrans.html, produite par outils/assembler.py --trois, contient la
+     page 16:9 (window.MUR_MAQUETTE) : un seul fichier, qui fonctionne seul, peu importe son nom. Chaque tiers lit la page par
+     une adresse blob:, ses paramètres après « # ». Sans elle, cette page ouvre maquette-16x9.html, dans le même dossier. -->
+<style>
+  html, body { margin: 0; height: 100%; background: #000; }
+  body { display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  #mur { display: grid; grid-template-columns: repeat(3, 1fr); width: min(100vw, calc(100vh * 48 / 9)); aspect-ratio: 48 / 9; }
+  #mur iframe { display: block; width: 100%; height: 100%; border: 0; }
+</style>
+</head>
+<body>
+<div id="mur" role="group" aria-label="Mur : trois appareils, trois scénarios"></div>
+<script>
+  (function () {
+    'use strict';
+    const p = new URLSearchParams(location.search);
+    const page = p.get('page') === 'index.html' ? 'index.html' : 'maquette-16x9.html';
+    const parcours = p.get('parcours') === '0' ? '0' : '1';
+    const mur = document.getElementById('mur');
+    // page 16:9 intégrée (version autonome) : une seule adresse blob:, lue par les trois tiers
+    const integree = typeof window.MUR_MAQUETTE === 'string' ? URL.createObjectURL(new Blob([window.MUR_MAQUETTE], { type: 'text/html' })) : null;
+    window.MUR_MAQUETTE = null;
+    for (const n of [1, 2, 3]) {
+      const q = new URLSearchParams({ scenario: n, parcours, equipe: String(n) });
+      if (page === 'index.html' && !integree) q.set('ecran', '16x9');
+      const f = document.createElement('iframe');
+      f.title = 'Appareil ' + n + ', scénario ' + n;
+      f.allow = 'autoplay; fullscreen';
+      f.src = integree ? integree + '#' + q.toString() : page + '?' + q.toString();
+      mur.appendChild(f);
+    }
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+{
+  "id": "scenario-3",
+  "titre": "Le retour des attelages : revitalisation et transmission",
+  "question": "Comment la course de traîneaux à chiens et le retour des attelages contribuent-ils à transmettre les savoirs liés au qimmiq d’une génération à l’autre?",
+  "parcours": {
+    "depart": "20.500.14927/6303",
+    "cartes": {
+      "20.500.14927/23251": [
+        {
+          "x": 0.62,
+          "y": 0.66,
+          "libelle": "attelage en éventail",
+          "vers": "20.500.14927/6303"
+        },
+        {
+          "x": 0.86,
+          "y": 0.59,
+          "libelle": "chien de tête",
+          "vers": "20.500.14927/6368"
+        },
+        {
+          "x": 0.27,
+          "y": 0.66,
+          "libelle": "traîneau et passagers",
+          "vers": "20.500.14927/23245"
+        }
+      ],
+      "20.500.14927/6303": [
+        {
+          "x": 0.32,
+          "y": 0.46,
+          "libelle": "attelage de chiens",
+          "vers": "20.500.14927/6368"
+        },
+        {
+          "x": 0.06,
+          "y": 0.4,
+          "libelle": "traîneau",
+          "vers": "20.500.14927/23245"
+        }
+      ],
+      "20.500.14927/6368": [
+        {
+          "x": 0.72,
+          "y": 0.62,
+          "libelle": "chien",
+          "vers": "20.500.14927/23251"
+        },
+        {
+          "x": 0.37,
+          "y": 0.22,
+          "libelle": "attelage en attente",
+          "vers": "20.500.14927/6303"
+        },
+        {
+          "x": 0.35,
+          "y": 0.48,
+          "libelle": "chien d'attelage",
+          "vers": "20.500.14927/6375"
+        }
+      ],
+      "20.500.14927/6161": [
+        {
+          "x": 0.5,
+          "y": 0.43,
+          "libelle": "qamutiik",
+          "vers": "20.500.14927/23245"
+        },
+        {
+          "x": 0.14,
+          "y": 0.55,
+          "libelle": "lanières",
+          "vers": "20.500.14927/6368"
+        }
+      ],
+      "20.500.14927/23245": [
+        {
+          "x": 0.5,
+          "y": 0.63,
+          "libelle": "qamutiik",
+          "vers": "20.500.14927/6161"
+        },
+        {
+          "x": 0.74,
+          "y": 0.68,
+          "libelle": "traits de l'attelage",
+          "vers": "20.500.14927/23251"
+        },
+        {
+          "x": 0.45,
+          "y": 0.44,
+          "libelle": "voyageur",
+          "vers": "20.500.14927/6368"
+        }
+      ],
+      "20.500.14927/23243": [
+        {
+          "x": 0.46,
+          "y": 0.42,
+          "libelle": "maisons du village",
+          "vers": "20.500.14927/23241"
+        }
+      ],
+      "20.500.14927/23241": [
+        {
+          "x": 0.3,
+          "y": 0.34,
+          "libelle": "piste d'atterrissage",
+          "vers": "20.500.14927/6161"
+        },
+        {
+          "x": 0.46,
+          "y": 0.5,
+          "libelle": "maisons du village",
+          "vers": "20.500.14927/23243"
+        }
+      ],
+      "20.500.14927/6375": [
+        {
+          "x": 0.62,
+          "y": 0.44,
+          "libelle": "chien d'attelage",
+          "vers": "20.500.14927/23251"
+        },
+        {
+          "x": 0.15,
+          "y": 0.84,
+          "libelle": "pistes dans la neige",
+          "vers": "20.500.14927/6303"
+        }
+      ]
+    }
+  },
+  "video": null,
+  "titre_video": null,
+  "sous_titres": null,
+  "credit": null,
+  "credit_court": null,
+  "objets": [
+    "20.500.14927/23245",
+    "20.500.14927/23251",
+    "20.500.14927/6161",
+    "20.500.14927/6303",
+    "20.500.14927/6368",
+    "20.500.14927/6375"
+  ],
+  "consignes": null
+}

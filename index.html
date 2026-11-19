@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="fr-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  /* Paramètres de la page (?scenario=2&parcours=1…). Dans la simulation à trois écrans autonome, chaque page est lue par
+     une adresse blob:, sans « ? » : ses paramètres suivent « # » (14 novembre 2026). */
+  window.MUR_PARAMS = location.protocol === 'blob:' ? location.hash.slice(1) : location.search;
+</script>
+<title>Mur de visualisation — Didactique et archives patrimoniales</title>
+<link rel="stylesheet" href="lib/leaflet.css">
+<link rel="stylesheet" href="css/mur.css">
+</head>
+<body>
+<!--
+  Maquette fonctionnelle du mur de visualisation (FSÉ, Bibliothèques de l'Université de Montréal).
+  Disposition : schémas de conception, version du 6 novembre 2026 (pages 2 et 3), états A à D.
+  Page de 11 520 × 2 160 px : 9 colonnes de 1 280 px et 3 rangées de 720 px, une cellule par écran.
+  Paramètres d'adresse : voir README.md.
+-->
+<div id="cadre">
+  <div id="scene" data-etat="A" data-base="A" data-objet="non" data-gauche="non">
+
+    <!-- Zone « Parcours thématique » : colonnes 1 à 6, rangées 1 et 2 -->
+    <section id="parcours" aria-label="Parcours thématique">
+      <!-- État A : trois scénarios, comme points de départ -->
+      <div id="accueil"></div>
+      <!-- État B : pile de cartes (js/pile.js); sans fil d'Ariane depuis le soir du 12 novembre 2026; la question du scénario est dans le carré de la zone de droite -->
+      <div id="scenario">
+        <!-- notice ouverte : le titre et la question du scénario reviennent ici, à gauche, dans la boîte inversée (soir du 12 novembre 2026) -->
+        <div id="carre-gauche" aria-hidden="true"><p class="titre"></p><p class="question"></p></div>
+        <div id="pile" aria-live="polite"></div>
+        <p id="pile-vide" hidden></p>
+        <button type="button" id="btn-precedente" class="fleche icone seule" aria-label="Carte précédente" title="Carte précédente" hidden><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"/></svg></button>
+        <button type="button" id="btn-suivante" class="fleche icone seule" aria-label="Carte suivante" title="Carte suivante" hidden><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M9.5 6l6 6-6 6"/></svg></button>
+      </div>
+    </section>
+
+    <!-- Zone « Visualisation et description de l'objet » : colonnes 7 à 9, rangées 1 et 2 -->
+    <section id="visualisation" aria-label="Visualisation et description de l'objet" aria-live="polite">
+      <div id="question">
+        <p id="theme"></p>
+        <!-- question du scénario (« question », scenario-N.json), sous le titre, dans le carré (soir du 12 novembre 2026);
+             un saut de ligne (\n) sépare deux phrases -->
+        <p id="question-scenario"></p>
+      </div>
+      <div id="objet-image" class="bloc-objet">
+        <div id="visionneuse" role="img" aria-label="Image de l'objet choisi"></div>
+        <p id="message-image" hidden></p>
+      </div>
+      <!-- notice, mots-clés, objets associés : ce qui dépasse s'efface en fondu, et le « v » fait défiler la suite -->
+      <div id="bloc-description" class="bloc-objet defilant"><div id="objet-description" class="defile"></div><div class="cache-haut" aria-hidden="true"></div><div class="cache-bas" aria-hidden="true"></div><button type="button" class="icone defiler" aria-label="Faire défiler vers le bas" title="Faire défiler vers le bas"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M6.5 9.5 12 15l5.5-5.5"/></svg></button></div>
+      <div id="bloc-mots" class="bloc-objet defilant"><div id="objet-mots" class="defile">
+        <h2>Mots-clés</h2>
+        <ul id="liste-mots"></ul>
+      </div><div class="cache-haut" aria-hidden="true"></div><div class="cache-bas" aria-hidden="true"></div><button type="button" class="icone defiler" aria-label="Faire défiler vers le bas" title="Faire défiler vers le bas"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M6.5 9.5 12 15l5.5-5.5"/></svg></button></div>
+      <div id="bloc-associes" class="bloc-objet defilant"><div id="objet-associes" class="defile">
+        <h2>Objets associés</h2>
+        <div id="liste-associes"></div>
+      </div><div class="cache-haut" aria-hidden="true"></div><div class="cache-bas" aria-hidden="true"></div><button type="button" class="icone defiler" aria-label="Faire défiler vers le bas" title="Faire défiler vers le bas"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M6.5 9.5 12 15l5.5-5.5"/></svg></button></div>
+    </section>
+
+    <!-- Zone « Vidéo/Tableau blanc » : colonnes 1 à 9, rangée 3 -->
+    <section id="bas" aria-label="Vidéo/Tableau blanc" data-entree="video">
+      <div id="video-bloc"><div id="video-hote"></div><p id="video-absente" hidden></p>
+        <!-- titre de la vidéo (ou de l'entrée) : en haut à gauche de la vidéo ou de l'entrée -->
+        <div id="video-titre"><strong id="video-libelle">Vidéo</strong></div>
+        <!-- progression de la vidéo : mince barre au bas de la vidéo (la ligne du temps suit le fil des choix) -->
+        <div id="video-barre" aria-hidden="true"><div id="video-progression"></div></div>
+        <!-- entrée par un modèle 3D ou une image (scénarios 2 et 3) : js/entree.js -->
+        <div id="entree-hote" hidden></div>
+        <div id="entree-commandes" class="barre" hidden>
+          <!-- même barre que l'affichage plein écran : zoom avant, zoom arrière, réinitialiser | plein écran -->
+          <button type="button" id="btn-zoom-plus-entree" class="icone" aria-label="Zoom avant" title="Zoom avant"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v9M7.5 12h9"/></svg></button>
+          <button type="button" id="btn-zoom-moins-entree" class="icone" aria-label="Zoom arrière" title="Zoom arrière"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M7.5 12h9"/></svg></button>
+          <button type="button" id="btn-centrer-entree" class="icone" aria-label="Réinitialiser la vue" title="Réinitialiser la vue"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v4.6h-4.6"/></svg></button>
+          <span class="separateur" aria-hidden="true"></span>
+          <button type="button" id="btn-plein-entree" class="icone" aria-label="Affichage plein écran" title="Affichage plein écran"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></button>
+        </div>
+        <!-- pastille de lecture sur la vidéo, comme sur la vignette du scénario : visible quand la vidéo est en pause -->
+        <button type="button" id="btn-lecture" class="lecture-video" aria-label="Lire la vidéo" hidden><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+        <!-- vidéo en plein écran, en tout temps : icône en bas à droite de la vidéo (agrandir, puis réduire) -->
+        <div id="video-plein-barre" class="barre"><button type="button" id="btn-plein-video" class="icone" aria-label="Affichage plein écran" title="Affichage plein écran" aria-pressed="false"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path class="agrandir" d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/><path class="reduire" d="M9 4v5H4M15 4v5h5M15 20v-5h5M9 20v-5H4"/></svg></button></div></div>
+      <!-- Menu du coin, en bas à gauche, toujours au même endroit : « Accueil » et « Tableau blanc », boutons ronds;
+           le bouton du coin le déploie (js/etat.js). « Parcours » : seulement avec ?parcours=1 (js/parcours.js) -->
+      <div id="coin">
+        <div id="coin-menu" hidden>
+          <button type="button" id="btn-parcours" class="coin-action" hidden><span class="icone seule"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="5.5" r="2"/><path d="M7.5 18.5h6a3 3 0 0 0 0-6h-3a3 3 0 0 1 0-6h6"/></svg></span><span class="coin-libelle">Parcours</span></button>
+          <button type="button" id="btn-accueil" class="coin-action"><span class="icone seule"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M4 11.5 12 4.5l8 7"/><path d="M6.5 9.8V19.5h11V9.8"/><path d="M10 19.5v-5h4v5"/></svg></span><span class="coin-libelle">Accueil</span></button>
+          <button type="button" id="btn-tableau" class="coin-action"><span class="icone seule"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="11.5" rx="1.5"/><path d="M12 16v3.5M8.5 19.5h7M7 12l3-3 2.5 2 4-4"/></svg></span><span class="coin-libelle">Tableau blanc</span></button>
+        </div>
+        <button type="button" id="btn-coin" class="icone seule" aria-label="Menu : Accueil et Tableau blanc" title="Menu : Accueil et Tableau blanc" aria-expanded="false" aria-controls="coin-menu"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path class="ouvrir" d="M5 7.5h14M5 12h14M5 16.5h14"/><path class="fermer" d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5"/></svg></button>
+      </div>
+      <!-- Parcours (?parcours=1, js/parcours.js) : télécharger le parcours de l'appareil en CSV ou en JSON, ou l'effacer -->
+      <div id="parcours-panneau" role="dialog" aria-label="Parcours" hidden>
+        <h2>Parcours</h2>
+        <p id="parcours-resume"></p>
+        <div class="actions">
+          <button type="button" id="btn-parcours-csv" class="bouton">Télécharger (CSV)</button>
+          <button type="button" id="btn-parcours-json" class="bouton">Télécharger (JSON)</button>
+          <button type="button" id="btn-parcours-effacer" class="bouton">Effacer</button>
+          <button type="button" id="btn-parcours-fermer" class="bouton">Fermer</button>
+        </div>
+      </div>
+      <div id="video-commandes">
+        <div id="ligne-temps" role="group" aria-label="Fil des choix">
+          <div id="ligne-fond"><div id="ligne-progression"></div></div>
+          <div id="pastilles"></div>
+        </div>
+      </div>
+      <div id="consignes">
+        <h2>Consignes</h2>
+        <p id="texte-consignes"></p>
+        <div id="salle-bloc">
+          <p class="etiquette-zone">Tableau blanc de la classe</p>
+          <p id="salle-lien"></p>
+          <form id="salle-formulaire" hidden>
+            <label for="salle-champ">Lien de la salle Excalidraw</label>
+            <input id="salle-champ" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://excalidraw.com/#room=…">
+            <button type="submit" class="bouton">Utiliser ce lien</button>
+            <p id="salle-erreur" role="alert"></p>
+          </form>
+          <button type="button" id="btn-oublier" class="lien-discret" hidden>Changer de salle</button>
+        </div>
+        <!-- toujours à portée de main, même quand la fenêtre du tableau blanc couvre sa zone -->
+        <button type="button" id="btn-reduire-consignes" class="bouton">Réduire le tableau blanc</button>
+      </div>
+      <div id="tableau">
+        <!-- Excalidraw désactive la collaboration dans un cadre (iframe) : la salle s'ouvre dans une fenêtre à part, posée sur cette zone -->
+        <div id="tableau-cadre"><p id="tableau-message"></p><button type="button" id="btn-ramener" class="bouton" hidden>Ouvrir la fenêtre</button></div>
+        <div id="tableau-commandes"><button type="button" id="btn-reduire" class="bouton">Réduire le tableau blanc</button></div>
+      </div>
+    </section>
+
+    <!-- État D : affichage plein écran, sur toute la surface du mur -->
+    <section id="plein" aria-label="Affichage plein écran">
+      <div id="visionneuse-plein" role="img" aria-label="Image de l'objet, en plein écran"></div>
+      <div id="plein-encadre"></div>
+      <div id="plein-commandes" class="barre">
+        <button type="button" id="btn-zoom-plus-plein" class="icone" aria-label="Zoom avant" title="Zoom avant"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v9M7.5 12h9"/></svg></button>
+        <button type="button" id="btn-zoom-moins-plein" class="icone" aria-label="Zoom arrière" title="Zoom arrière"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M7.5 12h9"/></svg></button>
+        <button type="button" id="btn-reinitialiser" class="icone" aria-label="Réinitialiser la vue" title="Réinitialiser la vue"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v4.6h-4.6"/></svg></button>
+        <span class="separateur" aria-hidden="true"></span>
+        <button type="button" id="btn-fermer" class="icone" aria-label="Fermer" title="Fermer"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M6 6 18 18M18 6 6 18"/></svg></button>
+      </div>
+    </section>
+
+    <!-- Ouverture : à l'ouverture de la page, avant l'accueil, une vidéo en plein écran, une seule fois (js/ouverture.js);
+         au-dessus de la vidéo, le titre du thème, mot par mot (14 novembre 2026); pause et X (quitter), en bas à droite -->
+    <section id="ouverture" aria-label="Ouverture" hidden>
+      <div id="ouverture-video"></div>
+      <p id="ouverture-absente" hidden></p>
+      <p id="ouverture-titre" aria-live="polite"><span id="ouverture-fr"></span></p>
+      <button type="button" id="btn-ouverture-lecture" class="lecture-video" aria-label="Lecture" hidden><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+      <div id="ouverture-commandes" class="barre">
+        <button type="button" id="btn-ouverture-pause" class="icone" aria-label="Pause" title="Pause"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path class="pause" d="M9 5.5v13M15 5.5v13"/><path class="lecture" d="M8 5v14l11-7z"/></svg></button>
+        <span class="separateur" aria-hidden="true"></span>
+        <button type="button" id="btn-ouverture-fermer" class="icone" aria-label="Fermer : aller à l'accueil" title="Fermer"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M6 6 18 18M18 6 6 18"/></svg></button>
+      </div>
+    </section>
+    <div id="grille-ecrans" aria-hidden="true"></div>
+    <!-- mode édition (?edition=1, js/edition.js) : à la place des notices au mur; en 16:9, à droite de la page -->
+    <aside id="edition" aria-label="Mode édition" hidden></aside>
+  </div>
+</div>
+<div id="message" role="alert" hidden></div>
+
+<script src="js/toucher.js"></script>
+<script src="lib/openseadragon.min.js"></script>
+<script src="lib/model-viewer-umd.min.js"></script>
+<script src="lib/leaflet.js"></script>
+<script src="js/iiif.js"></script>
+<script src="js/visionneuse.js"></script>
+<script src="js/pile.js"></script>
+<script src="js/video.js"></script>
+<script src="js/tableau-blanc.js"></script>
+<script src="js/carte.js"></script>
+<script src="js/entree.js"></script>
+<script src="js/filigrane.js"></script>
+<script src="js/ouverture.js"></script>
+<script src="js/parcours.js"></script>
+<script src="js/etat.js"></script>
+<script src="js/edition.js"></script>
+</body>
+</html>

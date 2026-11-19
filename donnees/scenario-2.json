@@ -1,0 +1,1003 @@
+{
+  "id": "scenario-2",
+  "titre": "La sédentarisation : une rupture dans l’occupation du territoire",
+  "question": "La sédentarisation et l’abattage des qimmiit ont changé la façon dont les Inuit occupent le territoire.\nQuelles en sont les conséquences?",
+  "parcours": {
+    "depart": "20.500.14927/24945",
+    "cartes": {
+      "20.500.14927/23243": [
+        {
+          "x": 0.46,
+          "y": 0.42,
+          "libelle": "maisons du village",
+          "vers": "20.500.14927/7816"
+        },
+        {
+          "x": 0.21,
+          "y": 0.71,
+          "libelle": "quai",
+          "vers": "20.500.14927/23242"
+        },
+        {
+          "x": 0.6,
+          "y": 0.82,
+          "libelle": "rivière Koksoak",
+          "vers": "20.500.14927/23241"
+        }
+      ],
+      "20.500.14927/7816": [
+        {
+          "x": 0.24,
+          "y": 0.21,
+          "libelle": "maisons",
+          "vers": "20.500.14927/6304"
+        },
+        {
+          "x": 0.55,
+          "y": 0.62,
+          "libelle": "grève de galets",
+          "vers": "20.500.14927/6153"
+        },
+        {
+          "x": 0.82,
+          "y": 0.42,
+          "libelle": "rivière Koksoak",
+          "vers": "20.500.14927/23243"
+        }
+      ],
+      "20.500.14927/23242": [
+        {
+          "x": 0.31,
+          "y": 0.61,
+          "libelle": "canots",
+          "vers": "20.500.14927/6161"
+        },
+        {
+          "x": 0.4,
+          "y": 0.46,
+          "libelle": "cabanes",
+          "vers": "20.500.14927/5447"
+        },
+        {
+          "x": 0.66,
+          "y": 0.24,
+          "libelle": "route",
+          "vers": "20.500.14927/23241"
+        }
+      ],
+      "20.500.14927/23241": [
+        {
+          "x": 0.3,
+          "y": 0.34,
+          "libelle": "piste d'atterrissage",
+          "vers": "20.500.14927/6161"
+        },
+        {
+          "x": 0.46,
+          "y": 0.5,
+          "libelle": "maisons du village",
+          "vers": "20.500.14927/23243"
+        },
+        {
+          "x": 0.86,
+          "y": 0.28,
+          "libelle": "rivière",
+          "vers": "20.500.14927/23242"
+        }
+      ],
+      "20.500.14927/6304": [
+        {
+          "x": 0.72,
+          "y": 0.36,
+          "libelle": "bâtiments du comptoir",
+          "vers": "20.500.14927/6370"
+        },
+        {
+          "x": 0.35,
+          "y": 0.32,
+          "libelle": "maisons espacées",
+          "vers": "20.500.14927/7816"
+        }
+      ],
+      "20.500.14927/6370": [
+        {
+          "x": 0.6,
+          "y": 0.25,
+          "libelle": "tente",
+          "vers": "20.500.14927/5447"
+        },
+        {
+          "x": 0.22,
+          "y": 0.48,
+          "libelle": "traîneau",
+          "vers": "20.500.14927/6161"
+        },
+        {
+          "x": 0.6,
+          "y": 0.47,
+          "libelle": "bagages",
+          "vers": "20.500.14927/6304"
+        }
+      ],
+      "20.500.14927/6153": [
+        {
+          "x": 0.66,
+          "y": 0.58,
+          "libelle": "cercle de tente",
+          "vers": "20.500.14927/23249"
+        },
+        {
+          "x": 0.25,
+          "y": 0.75,
+          "libelle": "cailloux roulés",
+          "vers": "20.500.14927/7816"
+        },
+        {
+          "x": 0.5,
+          "y": 0.1,
+          "libelle": "rivage de la baie d'Hudson",
+          "vers": "20.500.14927/24945"
+        }
+      ],
+      "20.500.14927/5447": [
+        {
+          "x": 0.7,
+          "y": 0.42,
+          "libelle": "tente de toile",
+          "vers": "20.500.14927/23249"
+        },
+        {
+          "x": 0.55,
+          "y": 0.82,
+          "libelle": "pierres",
+          "vers": "20.500.14927/6153"
+        },
+        {
+          "x": 0.31,
+          "y": 0.2,
+          "libelle": "tuyau du poêle",
+          "vers": "20.500.14927/7816"
+        }
+      ],
+      "20.500.14927/23249": [
+        {
+          "x": 0.63,
+          "y": 0.47,
+          "libelle": "tente d'été",
+          "vers": "20.500.14927/5447"
+        },
+        {
+          "x": 0.66,
+          "y": 0.83,
+          "libelle": "qajaq",
+          "vers": "20.500.14927/23242"
+        },
+        {
+          "x": 0.23,
+          "y": 0.7,
+          "libelle": "chien",
+          "vers": "20.500.14927/6161"
+        }
+      ],
+      "20.500.14927/6161": [
+        {
+          "x": 0.5,
+          "y": 0.43,
+          "libelle": "qamutiik",
+          "vers": "20.500.14927/23242"
+        },
+        {
+          "x": 0.14,
+          "y": 0.55,
+          "libelle": "lanières",
+          "vers": "20.500.14927/6370"
+        },
+        {
+          "x": 0.3,
+          "y": 0.12,
+          "libelle": "littoral de la mer d'Hudson",
+          "vers": "20.500.14927/24945"
+        }
+      ],
+      "20.500.14927/24945": [
+        {
+          "x": 0.42,
+          "y": 0.33,
+          "libelle": "côte est de la baie d'Hudson",
+          "vers": "20.500.14927/6153"
+        },
+        {
+          "x": 0.564,
+          "y": 0.355,
+          "libelle": "Terre des Esquimaux",
+          "vers": "20.500.14927/23243"
+        },
+        {
+          "x": 0.495,
+          "y": 0.628,
+          "libelle": "Acadie",
+          "vers": "20.500.14927/24940"
+        }
+      ],
+      "20.500.14927/24940": [
+        {
+          "x": 0.42,
+          "y": 0.3,
+          "libelle": "province de l'Acadie",
+          "vers": "20.500.14927/24939"
+        },
+        {
+          "x": 0.77,
+          "y": 0.67,
+          "libelle": "canot et deux hommes",
+          "vers": "20.500.14927/23249"
+        },
+        {
+          "x": 0.74,
+          "y": 0.17,
+          "libelle": "île du Cap-Breton",
+          "vers": "20.500.14927/24938"
+        }
+      ],
+      "20.500.14927/24939": [
+        {
+          "x": 0.75,
+          "y": 0.51,
+          "libelle": "baie Françoise",
+          "vers": "20.500.14927/24940"
+        },
+        {
+          "x": 0.4,
+          "y": 0.08,
+          "libelle": "continent",
+          "vers": "20.500.14927/24942"
+        },
+        {
+          "x": 0.44,
+          "y": 0.58,
+          "libelle": "rose des vents",
+          "vers": "20.500.14927/24945"
+        }
+      ],
+      "20.500.14927/24938": [
+        {
+          "x": 0.72,
+          "y": 0.51,
+          "libelle": "golfe du Saint-Laurent",
+          "vers": "20.500.14927/24945"
+        },
+        {
+          "x": 0.06,
+          "y": 0.07,
+          "libelle": "fleuve Saint-Laurent",
+          "vers": "20.500.14927/24937"
+        }
+      ],
+      "20.500.14927/24937": [
+        {
+          "x": 0.371,
+          "y": 0.492,
+          "libelle": "lac Saint-Jean",
+          "vers": "20.500.14927/24946"
+        },
+        {
+          "x": 0.448,
+          "y": 0.229,
+          "libelle": "pays des Montagnais",
+          "vers": "20.500.14927/24936"
+        },
+        {
+          "x": 0.624,
+          "y": 0.549,
+          "libelle": "fleuve Saint-Laurent",
+          "vers": "20.500.14927/24938"
+        }
+      ],
+      "20.500.14927/24946": [
+        {
+          "x": 0.5,
+          "y": 0.04,
+          "libelle": "titre de la feuille",
+          "vers": "20.500.14927/24947"
+        }
+      ],
+      "20.500.14927/24947": [
+        {
+          "x": 0.5,
+          "y": 0.04,
+          "libelle": "titre de la feuille",
+          "vers": "20.500.14927/24946"
+        },
+        {
+          "x": 0.47,
+          "y": 0.88,
+          "libelle": "cartouche",
+          "vers": "20.500.14927/24936"
+        }
+      ],
+      "20.500.14927/24936": [
+        {
+          "x": 0.225,
+          "y": 0.42,
+          "libelle": "secteur photographié du haut des airs",
+          "vers": "20.500.14927/24953"
+        },
+        {
+          "x": 0.49,
+          "y": 0.86,
+          "libelle": "titre de la carte",
+          "vers": "20.500.14927/24937"
+        },
+        {
+          "x": 0.507,
+          "y": 0.045,
+          "libelle": "carte topographique du Canada",
+          "vers": "20.500.14927/24946"
+        }
+      ],
+      "20.500.14927/24942": [
+        {
+          "x": 0.86,
+          "y": 0.38,
+          "libelle": "titre : « des Esquimaux »",
+          "vers": "20.500.14927/24945"
+        },
+        {
+          "x": 0.86,
+          "y": 0.62,
+          "libelle": "titre : « de la Virginie, de la Pensilvanie »",
+          "vers": "20.500.14927/24944"
+        }
+      ],
+      "20.500.14927/24944": [
+        {
+          "x": 0.27,
+          "y": 0.3,
+          "libelle": "carte de 1790",
+          "vers": "20.500.14927/24942"
+        },
+        {
+          "x": 0.655,
+          "y": 0.49,
+          "libelle": "population rurale et urbaine",
+          "vers": "20.500.14927/23243"
+        }
+      ],
+      "20.500.14927/24953": [
+        {
+          "x": 0.5,
+          "y": 0.5,
+          "libelle": "même secteur en 1967",
+          "vers": "20.500.14927/24948"
+        },
+        {
+          "x": 0.1,
+          "y": 0.5,
+          "libelle": "photo voisine, à l'ouest",
+          "vers": "20.500.14927/24954"
+        }
+      ],
+      "20.500.14927/24954": [
+        {
+          "x": 0.5,
+          "y": 0.5,
+          "libelle": "même secteur en 1967",
+          "vers": "20.500.14927/24949"
+        },
+        {
+          "x": 0.9,
+          "y": 0.5,
+          "libelle": "photo voisine, à l'est",
+          "vers": "20.500.14927/24953"
+        }
+      ],
+      "20.500.14927/24948": [
+        {
+          "x": 0.5,
+          "y": 0.5,
+          "libelle": "même secteur en 1968",
+          "vers": "20.500.14927/24950"
+        },
+        {
+          "x": 0.1,
+          "y": 0.5,
+          "libelle": "photo voisine, à l'ouest",
+          "vers": "20.500.14927/24949"
+        }
+      ],
+      "20.500.14927/24949": [
+        {
+          "x": 0.5,
+          "y": 0.5,
+          "libelle": "même secteur en 1968",
+          "vers": "20.500.14927/24951"
+        },
+        {
+          "x": 0.9,
+          "y": 0.5,
+          "libelle": "photo voisine, à l'est",
+          "vers": "20.500.14927/24948"
+        }
+      ],
+      "20.500.14927/24950": [
+        {
+          "x": 0.5,
+          "y": 0.5,
+          "libelle": "même secteur en 1988",
+          "vers": "20.500.14927/24952"
+        },
+        {
+          "x": 0.9,
+          "y": 0.5,
+          "libelle": "photo voisine, à l'est",
+          "vers": "20.500.14927/24951"
+        }
+      ],
+      "20.500.14927/24951": [
+        {
+          "x": 0.5,
+          "y": 0.5,
+          "libelle": "même secteur en 1988",
+          "vers": "20.500.14927/24952"
+        },
+        {
+          "x": 0.1,
+          "y": 0.5,
+          "libelle": "photo voisine, à l'ouest",
+          "vers": "20.500.14927/24950"
+        }
+      ],
+      "20.500.14927/24952": [
+        {
+          "x": 0.5,
+          "y": 0.5,
+          "libelle": "carte du secteur, 1962",
+          "vers": "20.500.14927/24936"
+        }
+      ]
+    }
+  },
+  "video": null,
+  "sous_titres": null,
+  "entree": {
+    "type": "carte",
+    "objet": "20.500.14927/24945"
+  },
+  "titre_entree": "Partie de la Nouvelle France : dédié à Monseigneur le Marquis de Seignelay et Lonré, 1685",
+  "credit": "Jaillot, A.-H. (1981). *Partie de la Nouvelle France : dédié à Monseigneur le Marquis de Seignelay et Lonré* [carte; fac-similé de l'édition de Paris, 1685]. Association des cartothèques canadiennes. Collections spéciales, Bibliothèques de l'Université de Montréal. [hdl.handle.net/20.500.14927/24945](https://hdl.handle.net/20.500.14927/24945).",
+  "credit_court": "Jaillot, 1981 · Collections spéciales UdeM",
+  "carte": {
+    "ancienne": {
+      "objet": "20.500.14927/24945",
+      "libelle": "Jaillot, 1685",
+      "georeference": {
+        "type": "Annotation",
+        "@context": [
+          "http://iiif.io/api/extension/georef/1/context.json",
+          "http://iiif.io/api/presentation/3/context.json"
+        ],
+        "motivation": "georeferencing",
+        "target": {
+          "type": "SpecificResource",
+          "source": {
+            "id": "https://cantaloupe.bib.umontreal.ca/iiif/2/c2eee943-4f04-4110-90cc-b8ca26275a90",
+            "type": "ImageService2",
+            "height": 18010,
+            "width": 23961
+          },
+          "selector": {
+            "type": "SvgSelector",
+            "value": "<svg width=\"23961\" height=\"18010\"><polygon points=\"900,1250 20900,1250 20900,15440 900,15440\" /></svg>"
+          }
+        },
+        "body": {
+          "type": "FeatureCollection",
+          "transformation": {
+            "type": "polynomial",
+            "options": {
+              "order": 1
+            }
+          },
+          "features": [
+            {
+              "type": "Feature",
+              "properties": {
+                "resourceCoords": [
+                  14090,
+                  12300
+                ],
+                "nom": "Tadoussac",
+                "source": "CGNDB EIFTL"
+              },
+              "geometry": {
+                "type": "Point",
+                "coordinates": [
+                  -69.7166667,
+                  48.15
+                ]
+              }
+            },
+            {
+              "type": "Feature",
+              "properties": {
+                "resourceCoords": [
+                  19940,
+                  10240
+                ],
+                "nom": "Belle Isle",
+                "source": "CGNDB ABAUO"
+              },
+              "geometry": {
+                "type": "Point",
+                "coordinates": [
+                  -55.3661111,
+                  51.93
+                ]
+              }
+            },
+            {
+              "type": "Feature",
+              "properties": {
+                "resourceCoords": [
+                  12925,
+                  4200
+                ],
+                "nom": "Cap Wolstenholme",
+                "source": "CGNDB EMANN"
+              },
+              "geometry": {
+                "type": "Point",
+                "coordinates": [
+                  -77.5097222,
+                  62.5805556
+                ]
+              }
+            },
+            {
+              "type": "Feature",
+              "properties": {
+                "resourceCoords": [
+                  16175,
+                  5200
+                ],
+                "nom": "Cape Chidley",
+                "source": "CGNDB AADYC"
+              },
+              "geometry": {
+                "type": "Point",
+                "coordinates": [
+                  -64.4337663,
+                  60.3777309
+                ]
+              }
+            },
+            {
+              "type": "Feature",
+              "properties": {
+                "resourceCoords": [
+                  12160,
+                  10673
+                ],
+                "nom": "Rivière Rupert (R. Rupert)",
+                "source": "CGNDB EOWSN"
+              },
+              "geometry": {
+                "type": "Point",
+                "coordinates": [
+                  -78.750278,
+                  51.493333
+                ]
+              }
+            },
+            {
+              "type": "Feature",
+              "properties": {
+                "resourceCoords": [
+                  9090,
+                  7390
+                ],
+                "nom": "Port Nelson",
+                "source": "CGNDB GATAG"
+              },
+              "geometry": {
+                "type": "Point",
+                "coordinates": [
+                  -92.505556,
+                  57.066667
+                ]
+              }
+            },
+            {
+              "type": "Feature",
+              "properties": {
+                "resourceCoords": [
+                  11040,
+                  8680
+                ],
+                "nom": "Cape Henrietta Maria (Cap Henriette)",
+                "source": "CGNDB FBNDS"
+              },
+              "geometry": {
+                "type": "Point",
+                "coordinates": [
+                  -82.3206413,
+                  55.1368556
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "points_calage_retires": [
+        {
+          "type": "Feature",
+          "properties": {
+            "resourceCoords": [
+              13810,
+              13160
+            ],
+            "nom": "Québec",
+            "source": "CGNDB EHTWR"
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -71.207997,
+              46.813819
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "resourceCoords": [
+              12260,
+              14340
+            ],
+            "nom": "Montréal",
+            "source": "CGNDB EHHUN"
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -73.554077,
+              45.508822
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "resourceCoords": [
+              16190,
+              11415
+            ],
+            "nom": "Pointe de l'Ouest (Anticosti)",
+            "source": "CGNDB EHMUJ"
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -64.5237907,
+              49.8639549
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "resourceCoords": [
+              17275,
+              12010
+            ],
+            "nom": "Pointe de l'Est (Anticosti)",
+            "source": "CGNDB EGHOL"
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -61.670556,
+              49.133611
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "resourceCoords": [
+              15475,
+              14415
+            ],
+            "nom": "Annapolis Royal (Port Royal)",
+            "source": "CGNDB CAASF"
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -65.518907,
+              44.743729
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "resourceCoords": [
+              18415,
+              13190
+            ],
+            "nom": "Cape Ray (Cap de Raye)",
+            "source": "CGNDB ABITW"
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -59.309503,
+              47.621963
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "resourceCoords": [
+              5280,
+              13464
+            ],
+            "nom": "Sault Ste. Marie (Saut Ste Marie)",
+            "source": "CGNDB FDZCP"
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -84.346944,
+              46.558889
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "resourceCoords": [
+              3000,
+              10740
+            ],
+            "nom": "Lake Nipigon (Lac Alemenipigon), centre",
+            "source": "CGNDB FAYHP"
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -88.517942,
+              49.823333
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "resourceCoords": [
+              7860,
+              13020
+            ],
+            "nom": "Lake Nipissing (Lac Mipissing), centre",
+            "source": "CGNDB FDSBC"
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -80.1056054,
+              46.2904311
+            ]
+          }
+        }
+      ],
+      "tuile": 512
+    },
+    "recente": {
+      "libelle": "Carte récente (provisoire)",
+      "tuiles": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "attribution": "© les contributeurs d’<a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a>",
+      "zoom_max": 19
+    },
+    "vue": {
+      "cadre": [
+        [
+          52.2,
+          -98
+        ],
+        [
+          72,
+          -66
+        ]
+      ]
+    },
+    "rideau": 1
+  },
+  "points_carte": {
+    "ancienne": [
+      {
+        "libelle": "Terres Arctiques",
+        "nom": "« Terres Arctiques »",
+        "sous_titre": "Inscription de la carte",
+        "x": 7450,
+        "y": 2156,
+        "objets": [
+          "20.500.14927/23239"
+        ]
+      },
+      {
+        "libelle": "Destroit de Hudson",
+        "nom": "« Destroit de Hudson »",
+        "sous_titre": "Inscription de la carte",
+        "x": 12950,
+        "y": 3850,
+        "objets": [
+          "20.500.14927/23249"
+        ]
+      },
+      {
+        "libelle": "Baye de Hudson",
+        "nom_a_gauche": true,
+        "nom": "« Baye de Hudson »",
+        "sous_titre": "Inscription de la carte",
+        "x": 9050,
+        "y": 6140,
+        "objets": [
+          "20.500.14927/23244"
+        ]
+      },
+      {
+        "libelle": "Terre des Esquimaux",
+        "nom": "« Labrador ou Terre des Esquimaux »",
+        "sous_titre": "Inscription de la carte",
+        "x": 14100,
+        "y": 7847,
+        "objets": [
+          "20.500.14927/23247"
+        ]
+      }
+    ],
+    "recente": [
+      {
+        "libelle": "Kuujjuaq",
+        "nom": "Kuujjuaq",
+        "sous_titre": "Anciennement Fort-Chimo · Québec",
+        "lat": 58.107516,
+        "lon": -68.399563,
+        "objets": [
+          "20.500.14927/23243",
+          "20.500.14927/7816"
+        ],
+        "source": "Base de données toponymiques du Canada (Ressources naturelles Canada) : EJJIZ; ancien nom, EJJJA"
+      },
+      {
+        "libelle": "Kuujjuarapik",
+        "nom": "Kuujjuarapik",
+        "sous_titre": "Anciennement Poste-de-la-Baleine (Great Whale River) · Québec",
+        "lat": 55.2833333,
+        "lon": -77.75,
+        "objets": [
+          "20.500.14927/23241",
+          "20.500.14927/23242",
+          "20.500.14927/6153"
+        ],
+        "source": "Base de données toponymiques du Canada (Ressources naturelles Canada) : EJKNA; anciens noms, EHSSB et EGOJK"
+      },
+      {
+        "libelle": "Gjoa Haven",
+        "nom": "Gjoa Haven",
+        "sous_titre": "Nunavut",
+        "lat": 68.625,
+        "lon": -95.877778,
+        "objets": [
+          "20.500.14927/6304"
+        ],
+        "source": "Base de données toponymiques du Canada (Ressources naturelles Canada) : OAGHL"
+      },
+      {
+        "libelle": "Boothia",
+        "nom": "Boothia Peninsula",
+        "sous_titre": "Nunavut",
+        "lat": 71.0,
+        "lon": -94.0,
+        "objets": [
+          "20.500.14927/6303"
+        ],
+        "source": "Base de données toponymiques du Canada (Ressources naturelles Canada) : OACLL"
+      }
+    ]
+  },
+  "points_modele3d": [
+    {
+      "libelle": "mission",
+      "objet": "20.500.14927/6370",
+      "position": "7.738m 18.837m -11.518m",
+      "normale": "-0.239m -0.299m 0.924m"
+    },
+    {
+      "libelle": "maisons",
+      "objet": "20.500.14927/7816",
+      "position": "-0.934m 17.435m -8.928m",
+      "normale": "-0.285m 0.110m 0.952m"
+    },
+    {
+      "libelle": "comptoir",
+      "objet": "20.500.14927/6304",
+      "position": "6.111m 17.827m -2.449m",
+      "normale": "0.133m 0.015m 0.991m"
+    },
+    {
+      "libelle": "cercle de tente",
+      "objet": "20.500.14927/6153",
+      "position": "-1.193m 6.505m -3.381m",
+      "normale": "-0.779m 0.052m 0.625m"
+    },
+    {
+      "libelle": "campement d'été",
+      "objet": "20.500.14927/23249",
+      "position": "-6.906m 3.274m 1.168m",
+      "normale": "-0.352m 0.794m 0.496m"
+    },
+    {
+      "libelle": "tente de toile",
+      "objet": "20.500.14927/5447",
+      "position": "-0.877m 2.932m 6.527m",
+      "normale": "-0.252m 0.292m 0.923m"
+    },
+    {
+      "libelle": "village",
+      "objet": "20.500.14927/23243",
+      "position": "-12.907m 3.344m 10.050m",
+      "normale": "-0.037m 0.999m -0.009m"
+    },
+    {
+      "libelle": "piste d'atterrissage",
+      "objet": "20.500.14927/23241",
+      "position": "-14.189m 0.586m -0.723m",
+      "normale": "-0.127m 0.939m 0.319m"
+    },
+    {
+      "libelle": "embarcations",
+      "objet": "20.500.14927/23242",
+      "position": "-23.575m 0.620m 8.391m",
+      "normale": "-0.588m 0.800m 0.116m"
+    },
+    {
+      "libelle": "traîneau remisé",
+      "objet": "20.500.14927/6161",
+      "position": "-10.942m 1.485m 20.422m",
+      "normale": "-0.427m 0.414m 0.804m"
+    }
+  ],
+  "objets": [
+    "20.500.14927/23241",
+    "20.500.14927/23242",
+    "20.500.14927/23243",
+    "20.500.14927/23249",
+    "20.500.14927/5447",
+    "20.500.14927/6153",
+    "20.500.14927/6161",
+    "20.500.14927/6304",
+    "20.500.14927/6370",
+    "20.500.14927/7816",
+    "20.500.14927/24945",
+    "20.500.14927/24940",
+    "20.500.14927/24939",
+    "20.500.14927/24938",
+    "20.500.14927/24937",
+    "20.500.14927/24946",
+    "20.500.14927/24947",
+    "20.500.14927/24936",
+    "20.500.14927/24942",
+    "20.500.14927/24944",
+    "20.500.14927/24953",
+    "20.500.14927/24954",
+    "20.500.14927/24948",
+    "20.500.14927/24949",
+    "20.500.14927/24950",
+    "20.500.14927/24951",
+    "20.500.14927/24952"
+  ],
+  "consignes": null
+}
