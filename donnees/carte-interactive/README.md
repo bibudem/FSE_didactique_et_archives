@@ -1,10 +1,3 @@
 # Carte interactive
 
-Fichiers de la carte interactive, tracée par la page avec Leaflet.
-
-| Fichier | Contenu |
-| --- | --- |
-| `<couche>.geojson` | Une couche par fichier, en longitude et latitude (WGS 84) |
-| `style.json` | Style de chaque couche : couleurs, épaisseurs, symboles, légende |
-
-Chaque élément qui ouvre une notice porte, dans ses propriétés, l'identifiant de l'objet dans `donnees/objets.json`.
+Dossier réservé aux fichiers de la carte interactive du scénario 3, à venir. Leur forme reste à déterminer avec la personne qui produit la carte.
