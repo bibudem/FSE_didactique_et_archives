@@ -2,7 +2,7 @@
 
 Page web statique qui présente des objets des collections patrimoniales de l'Université de Montréal sur le mur de visualisation du laboratoire : 27 écrans de 1 280 × 720 px, en 9 colonnes et 3 rangées, soit 11 520 × 2 160 px. La page s'affiche aussi sur un écran 16:9.
 
-Projet de la Faculté des sciences de l'éducation, en collaboration avec les Bibliothèques de l'Université de Montréal. Maquette fonctionnelle : les scénarios et leurs contenus sont donnés à titre indicatif.
+Projet de la Faculté des sciences de l'éducation, en collaboration avec les Bibliothèques de l'Université de Montréal.
 
 ## Fonctionnement
 
@@ -86,6 +86,7 @@ Produire de nouveau ces fichiers après tout changement du code ou des données.
 | `donnees/objets.json` | Objets : identifiant (lien permanent), manifeste IIIF, titre court, thèmes, mots-clés, crédits |
 | `donnees/scenarios.json` | Thème, vidéo d'ouverture et liste des trois scénarios |
 | `donnees/scenario-N.json` | Parcours d'un scénario : image de départ, éléments de chaque image (`x`, `y`, `libelle`, `vers`), entrée, question |
+| `donnees/carte-interactive/` | Couches de la carte interactive, en GeoJSON, et leur style (à venir) |
 
 Les notices sont lues dans les manifestes IIIF (API Présentation 2.x) des Collections spéciales. Les médias des scénarios ne font pas partie du répertoire GitHub.
 
@@ -100,7 +101,7 @@ simulation-trois-ecrans.html  la même simulation, autonome
 css/mur.css                   grille des écrans, zones et états
 js/                           états, pile de cartes, notices IIIF, vidéo, carte comparative, tableau blanc, édition, parcours
 lib/                          OpenSeadragon, model-viewer, Leaflet et leurs licences
-donnees/                      objets et scénarios
+donnees/                      objets, scénarios et carte interactive
 medias/                       pistes WebVTT de test
 guides/                       guides d'utilisation
 outils/                       assemblage des versions autonomes, gabarit du tableau blanc, conversion WebVTT
